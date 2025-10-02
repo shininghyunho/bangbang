@@ -1,2 +1,3 @@
-# web-p1-codestagram
-웹 첫번째 미션
+# web-p4-bangbang
+
+부스트캠프 2025 웹 4번째 미션 숙박 애플리케이션
