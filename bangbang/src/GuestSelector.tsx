@@ -1,7 +1,7 @@
-export default function GuestSelector () {
+export default function GuestSelector ({ onClick }: { onClick: () => void}) {
     return (
         <>
-            <div>
+            <div onClick={onClick}>
                 인원
             </div>
             <button className="clear-guest">X</button>
