@@ -1,4 +1,10 @@
-import GuestCategory from "./GuestCategory";
+function GuestCategory({ title, subTitle }: { title: string; subTitle: string }) {
+    return (
+    <>
+        <p>{title}</p>
+        <p>{subTitle}</p>
+    </>)
+}
 
 export default function GuestModal() {
     return (
