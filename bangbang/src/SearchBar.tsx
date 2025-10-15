@@ -3,10 +3,10 @@ import GuestModal from "./GuestModal";
 import GuestSelector from "./GuestSelector";
 
 export default function SearchBar() {
-    const [on,setOn] = useState(false);
+    const [showModal,setShowModal] = useState(false);
 
-    function handleOnClick() {
-        setOn(prev => !prev);
+    function handleClose() {
+        setShowModal(false);
     }
 
     return(
@@ -15,10 +15,10 @@ export default function SearchBar() {
                 <div className="search-field">체크인</div>
                 <div className="search-field">체크아웃</div>
                 <div className="search-field">요금</div>
-                <GuestSelector onClick={handleOnClick}/>
+                <GuestSelector onClick={()=>{setShowModal(true)}}/>
                 <div className="search-field">검색</div>
             </div>
-            {on && <GuestModal/>}
+            <GuestModal isOpen={showModal} onClose={handleClose}></GuestModal>
         </>
     )
 }
