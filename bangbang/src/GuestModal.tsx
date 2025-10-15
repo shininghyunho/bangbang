@@ -2,10 +2,11 @@ import { useEffect, useRef } from 'react';
 
 function GuestCategory({ title, subTitle }: { title: string; subTitle: string }) {
     return (
-    <>
-        <p>{title}</p>
-        <p>{subTitle}</p>
-    </>)
+        <>
+            <p>{title}</p>
+            <p>{subTitle}</p>
+        </>
+    );
 }
 
 export default function GuestModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
@@ -19,15 +20,15 @@ export default function GuestModal({ isOpen, onClose }: { isOpen: boolean, onClo
         return () => dialog?.close();
     }, [isOpen]);
 
-    function handleBackgroundClick(e: React.MouseEvent<HTMLDialogElement>) {
-        if(e.target === ref.current) onClose();
-    }
+    const handleBackgroundClick = () => onClose();
 
     return (
-        <dialog ref={ref} onClick={handleBackgroundClick} onClose={onClose}>
-            <GuestCategory title="성인" subTitle="만 13세 이상"/>
-            <GuestCategory title="어린이" subTitle="만 2세 ~ 12세"/>
-            <GuestCategory title="유아" subTitle="만 2세 미만"/>
+        <dialog ref={ref} onClick={handleBackgroundClick} style={{padding:0}}>
+            <section onClick={e => e.stopPropagation()} style={{padding:'24px'}}>
+                <GuestCategory title="성인" subTitle="만 13세 이상"/>
+                <GuestCategory title="어린이" subTitle="만 2세 ~ 12세"/>
+                <GuestCategory title="유아" subTitle="만 2세 미만"/>
+            </section>
         </dialog>
     );
 }
