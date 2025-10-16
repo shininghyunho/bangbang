@@ -11,12 +11,14 @@ export default function SearchBar() {
 
     return(
         <>
-            <div className="flex items-center p-2 border rounded-lg shadow-sm">
-                <div className="p-2 font-semibold">체크인</div>
-                <div className="p-2 font-semibold">체크아웃</div>
-                <div className="p-2 text-gray-400">요금</div>
-                <GuestSelector onClick={()=>{setShowModal(true)}}/>
-                <div className="p-2 bg-blue-500 text-white rounded-md ml-2">검색</div>
+            <div className="flex items-center border rounded divide-x">
+                <div>체크인</div>
+                <div>체크아웃</div>
+                <div>요금</div>
+                <div>
+                    <GuestSelector onClick={() => { setShowModal(true) }} />
+                </div>
+                <div>검색</div>
             </div>
             <GuestModal isOpen={showModal} onClose={handleClose}></GuestModal>
         </>

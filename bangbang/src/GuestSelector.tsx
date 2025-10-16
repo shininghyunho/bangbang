@@ -1,10 +1,10 @@
 export default function GuestSelector ({ onClick }: { onClick: () => void}) {
     return (
-        <>
+        <div className="flex items-center">
             <div onClick={onClick}>
                 인원
             </div>
-            <button className="clear-guest">X</button>
-        </>
+            <button>X</button>
+        </div>
     )
 }
