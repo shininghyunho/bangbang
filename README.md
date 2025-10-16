@@ -16,3 +16,49 @@
 - 유아는 성인이 필수인 조건이 만족되는지 확인해본다.
 - 성인, 어린이, 유아 +,- 버튼을 눌러보며 합계 로직이 제대로 동작하는지 확인한다.
 ![시뮬](./모달창시뮬.gif)
+
+## 컴포넌트 구조.
+```mermaid
+graph TD
+    App --> SearchBar;
+    SearchBar --> GuestInput;
+    GuestInput --> GuestSelector;
+    GuestInput --> GuestModal;
+    GuestModal --> GuestCategory;
+```
+
+## 컴포넌트 시각 구조
+```mermaid
+graph LR
+    subgraph SearchBar
+        direction LR
+        A[체크인]
+        B[체크아웃]
+        C[요금]
+        subgraph GuestInput
+            인원-GuestSelector
+        end
+        E[검색]
+    end
+
+    subgraph "GuestModal (Dialog)"
+        direction TB
+        subgraph "GuestCategory (성인)"
+            direction LR
+            Title1[성인]
+            Counter1[...]
+        end
+        subgraph "GuestCategory (어린이)"
+            direction LR
+            Title2[어린이]
+            Counter2[...]
+        end
+        subgraph "GuestCategory (유아)"
+            direction LR
+            Title3[유아]
+            Counter3[...]
+        end
+    end
+
+    인원-GuestSelector -- Click --> GuestModal
+```
