@@ -1,6 +1,6 @@
 export default function GuestSelector ({ onClick }: { onClick: () => void}) {
     return (
-        <div className="flex items-center">
+        <div style={{ display: 'flex',alignItems: 'center', }}>
             <div onClick={onClick}>
                 인원
             </div>
