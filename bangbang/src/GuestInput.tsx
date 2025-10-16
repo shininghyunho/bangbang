@@ -2,14 +2,10 @@ import { useState } from 'react';
 import GuestSelector from './GuestSelector';
 import GuestModal from './GuestModal';
 
+import { GUEST_TYPES } from './guest-constants';
+
 const MIN_COUNT = 0;
 const MAX_COUNT = 8;
-
-export const GUEST_TYPES = {
-    ADULT: 'adult',
-    CHILD: 'child',
-    INFANT: 'infant',
-} as const;
 
 export default function GuestInput() {
     const [showModal, setShowModal] = useState(false);

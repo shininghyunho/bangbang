@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import GuestCategory from './GuestCategory';
-import { GUEST_TYPES } from './GuestInput';
+import { GUEST_TYPES } from './guest-constants';
 
 const categoryStyle = {
     padding: '1.5rem 0',
