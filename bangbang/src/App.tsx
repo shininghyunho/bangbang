@@ -3,10 +3,12 @@ import SearchBar from './SearchBar';
 function App() {
 
   return (
-    <>
-      <h1>메인 페이지</h1>
-      <SearchBar/>
-    </>
+    <div>
+      <h1 style={{ textAlign: 'center' }}>메인 페이지</h1>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <SearchBar />
+      </div>
+    </div>
   )
 }
 
