@@ -62,3 +62,14 @@ graph LR
 
     인원-GuestSelector -- Click --> GuestModal
 ```
+
+# WK2
+## 이번주 목표.
+- 밸런스.
+- 기본기.
+### 프론트.
+- 기본기에 충실.
+- [프론트 계획](https://www.notion.so/P4-wk2-20251020-292748edda9b80909881e4dcf9f12529?pvs=24)
+### 백엔드.
+- OAuath, 검색 기능, 도커 배포.
+- [백엔드 계획](https://www.notion.so/P4-wk2-20251020-292748edda9b80c2814ce3799d50a2f5?pvs=24)
