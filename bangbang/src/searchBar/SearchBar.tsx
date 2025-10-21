@@ -2,6 +2,7 @@ import { useState } from "react";
 import GuestInput from "./guest/GuestInput";
 import PriceInput from "./price/PriceInput";
 import DateInput from "./date/DateInput";
+import { fetchSearch } from "./SearchController";
 
 const childStyle = {
     padding: '0.5rem 1rem',
@@ -17,6 +18,10 @@ export default function SearchBar() {
     const [dateGroup, setDateGroup] = useState({ fromDate:'', toDate:'' });
     const [priceGroup, setPriceGroup] = useState({ minPrice: 0, maxPrice: 0 });
     const [guestGroup, setGuestGroup] = useState({ adult:0, child:0, infant:0 });
+
+    const handleSearch = () => {
+        fetchSearch(dateGroup, priceGroup, guestGroup);
+    };
 
     return(
         <div style={{ display: 'flex', alignItems: 'center', padding:'0.5rem 1.5rem', border: '3px solid #838a97ff', borderRadius: '5rem' }}>
@@ -42,7 +47,9 @@ export default function SearchBar() {
             <div style={childWithBorderStyle}>
                 <GuestInput guestGroup={guestGroup} setGuestGroup={setGuestGroup} />
             </div>
-            <div style={childWithBorderStyle}>검색</div>
+            <div onClick={handleSearch} style={{...childWithBorderStyle, cursor: 'pointer', fontWeight: 'bold' }}>
+                검색
+            </div>
         </div>
     )
 }
