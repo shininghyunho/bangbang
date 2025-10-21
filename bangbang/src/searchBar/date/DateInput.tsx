@@ -1,24 +1,37 @@
 import { useState } from 'react';
 import DateModal from './DateModal';
 
-export default function DateInput({name}:{name:string}) {
-    const [date, setDate] = useState('');
+type DateType = { fromDate: string; toDate: string };
+
+export default function DateInput({
+    displayName,
+    dateGroup,
+    setDateGroup,
+    dateName,
+} : {
+    displayName: string;
+    dateGroup: DateType;
+    setDateGroup: (newDate: DateType) => void;
+    dateName: 'fromDate' | 'toDate';
+}) {
     const [showModal, setShowModal] = useState(false);
-    
+
+    const date = dateGroup[dateName];
+
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setDate(e.target.value);
+        setDateGroup({ ...dateGroup, [dateName]: e.target.value });
     };
     
     const handleResetClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        setDate('');
+        setDateGroup({ ...dateGroup, [dateName]: '' });
     }
 
     return (
         <>
             <div onClick={() => setShowModal(true)} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                    <div>{name}</div>
+                    <div>{displayName}</div>
                     {date && <div style={{ color: '#848c9bff', fontSize: '0.9rem' }}>{date}</div>}
                 </div>
             {date && <button onClick={handleResetClick} style={{ marginLeft: '1.5rem' }}>X</button>}
