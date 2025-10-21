@@ -1,6 +1,6 @@
-import DateInput from "./DateInput";
-import GuestInput from "./GuestInput";
-import PriceInput from "./PriceInput";
+import DateInput from "./date/DateInput";
+import GuestInput from "./guest/GuestInput";
+import PriceInput from "./price/PriceInput";
 
 const childStyle = {
     padding: '0.5rem 1rem',
