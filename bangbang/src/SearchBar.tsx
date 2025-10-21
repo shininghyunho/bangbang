@@ -1,5 +1,6 @@
 import DateInput from "./DateInput";
 import GuestInput from "./GuestInput";
+import PriceInput from "./PriceInput";
 
 const childStyle = {
     padding: '0.5rem 1rem',
@@ -19,7 +20,9 @@ export default function SearchBar() {
             <div style={childWithBorderStyle}>
                 <DateInput name="체크아웃"/>
             </div>
-            <div style={childWithBorderStyle}>요금</div>
+            <div style={childWithBorderStyle}>
+                <PriceInput/>
+            </div>
             <div style={childWithBorderStyle}>
                 <GuestInput />
             </div>
