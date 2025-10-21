@@ -8,6 +8,11 @@ export default function FromDateInput() {
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFromDate(e.target.value);
     };
+    
+    const handleResetClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setFromDate('');
+    }
 
     return (
         <>
@@ -16,6 +21,7 @@ export default function FromDateInput() {
                     <div>체크인</div>
                     {fromDate && <div style={{ color: '#848c9bff', fontSize: '0.9rem' }}>{fromDate}</div>}
                 </div>
+            {fromDate && <button onClick={handleResetClick} style={{ marginLeft: '1.5rem' }}>X</button>}
             </div>
             <DateModal 
                 date={fromDate}
