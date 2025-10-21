@@ -78,8 +78,8 @@ graph LR
 ```mermaid
 graph TD
     App --> SearchBar;
-    SearchBar -- fromDate, toDate --> DateInputCheckIn[DateInput_체크인];
-    SearchBar -- fromDate, toDate --> DateInputCheckOut[DateInput_체크아웃];
+    SearchBar -- fromDate --> DateInputCheckIn[DateInput_체크인];
+    SearchBar -- toDate --> DateInputCheckOut[DateInput_체크아웃];
     SearchBar -- minPrice, maxPrice --> PriceInput;
     SearchBar -- adult, child, infant --> GuestInput;
 
