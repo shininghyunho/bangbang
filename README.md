@@ -73,3 +73,24 @@ graph LR
 ### 백엔드.
 - OAuath, 검색 기능, 도커 배포.
 - [백엔드 계획](https://www.notion.so/P4-wk2-20251020-292748edda9b80c2814ce3799d50a2f5?pvs=24)
+
+## 컴포넌트 구조.
+```mermaid
+graph TD
+    App --> SearchBar;
+    SearchBar -- fromDate --> DateInputCheckIn[DateInput_체크인];
+    SearchBar -- toDate --> DateInputCheckOut[DateInput_체크아웃];
+    SearchBar -- minPrice, maxPrice --> PriceInput;
+    SearchBar -- adult, child, infant --> GuestInput;
+
+    DateInputCheckIn --> DateModal;
+    DateInputCheckOut --> DateModal;
+
+    PriceInput --> PriceModal;
+
+    GuestInput --> GuestSelector;
+    GuestInput --> GuestModal;
+    GuestModal --> GuestCategory_Adult[GuestCategory_성인];
+    GuestModal --> GuestCategory_Child[GuestCategory_어린이];
+    GuestModal --> GuestCategory_Infant[GuestCategory_유아];
+```
