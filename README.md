@@ -94,3 +94,5 @@ graph TD
     GuestModal --> GuestCategory_Child[GuestCategory_어린이];
     GuestModal --> GuestCategory_Infant[GuestCategory_유아];
 ```
+## 테이블 설계.
+![테이블설계](./첨부파일/테이블설계.png)
