@@ -5,9 +5,11 @@ import {
   ManyToOne,
   JoinColumn,
   Index,
+  OneToMany,
 } from 'typeorm';
 
 import { User } from 'src/users/entities/user.entity';
+import { ListingSchedule } from './listing-schedule.entity';
 
 @Entity('listings')
 @Index(['guestCapacity', 'infantCapacity'])
@@ -36,4 +38,7 @@ export class Listing {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   address: string;
+
+  @OneToMany(() => ListingSchedule, (schedule) => schedule.listing)
+  schedules: ListingSchedule[];
 }
