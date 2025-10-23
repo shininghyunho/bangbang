@@ -47,4 +47,4 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: ["npm", "test", "--", "test/listing.repository.integration.spec.ts"] # Command to run the integration test
+    command: ["npm", "run", "test:docker:internal"]

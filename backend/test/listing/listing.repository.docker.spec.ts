@@ -3,11 +3,11 @@ import { INestApplication } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DataSource, Repository } from 'typeorm';
-import { ListingRepository } from '../src/listings/repositories/listing.repository';
-import { Listing } from '../src/listings/entities/listing.entity';
-import { ListingSchedule } from '../src/listings/entities/listing-schedule.entity';
-import { User } from '../src/users/entities/user.entity';
-import { SearchListingsRequestDto } from '../src/listings/dto/search-listings.request.dto';
+import { ListingRepository } from '../../src/listings/repositories/listing.repository';
+import { Listing } from '../../src/listings/entities/listing.entity';
+import { ListingSchedule } from '../../src/listings/entities/listing-schedule.entity';
+import { User } from '../../src/users/entities/user.entity';
+import { SearchListingsRequestDto } from '../../src/listings/dto/search-listings.request.dto';
 
 describe('ListingRepository (통합 테스트)', () => {
   let app: INestApplication;
