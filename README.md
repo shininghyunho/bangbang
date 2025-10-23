@@ -94,3 +94,5 @@ graph TD
     GuestModal --> GuestCategory_Child[GuestCategory_어린이];
     GuestModal --> GuestCategory_Infant[GuestCategory_유아];
 ```
+
+## [물리적 DB 구조(DDL)](./첨부파일/DDL.md)
