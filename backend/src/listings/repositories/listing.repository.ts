@@ -19,13 +19,13 @@ export class ListingRepository extends Repository<Listing> {
     const diffDays = Math.ceil(diffTime / MS_PER_DAY) + 1;
 
     const query = this.createQueryBuilder('listing')
-      .innerJoinAndSelect('listing.schedules', 'schedule')
+      .innerJoinAndSelect('listing.schedules', 'schedule') // schedules 관계를 로드
       .where('listing.guestCapacity >= :guestSize', { guestSize })
       .andWhere('listing.infantCapacity >= :infantSize', { infantSize })
       .andWhere('schedule.date BETWEEN :startDate AND :endDate', { startDate, endDate })
       .andWhere('schedule.isAvailable = :isAvailable', { isAvailable: true })
       .andWhere('schedule.price BETWEEN :minPrice AND :maxPrice', { minPrice, maxPrice })
-      .groupBy('listing.id')
+      .groupBy('listing.id, listing.hostId, listing.name, listing.description, listing.guestCapacity, listing.infantCapacity, listing.address')
       .having('COUNT(DISTINCT schedule.date) = :diffDays', { diffDays });
 
     return query.getMany();

@@ -16,6 +16,7 @@ services:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       timeout: 20s
       retries: 10
+    command: --sql-mode="" # ONLY_FULL_GROUP_BY 모드 비활성화
 
   backend:
     build:
@@ -32,3 +33,18 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  test: # New service for running tests
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PORT: 3306
+      DATABASE_USER: test_user
+      DATABASE_PASSWORD: test_password
+      DATABASE_NAME: test_db
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["npm", "test", "--", "test/listing.repository.integration.spec.ts"] # Command to run the integration test
