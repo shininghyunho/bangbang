@@ -4,10 +4,10 @@ services:
   db:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_ROOT_PASSWORD: 1234
       MYSQL_DATABASE: test_db
       MYSQL_USER: test_user
-      MYSQL_PASSWORD: test_password
+      MYSQL_PASSWORD: 1234
     ports:
       - "3306:3306"
     volumes:
@@ -28,7 +28,7 @@ services:
       DATABASE_HOST: db
       DATABASE_PORT: 3306
       DATABASE_USER: test_user
-      DATABASE_PASSWORD: test_password
+      DATABASE_PASSWORD: 1234
       DATABASE_NAME: test_db
     depends_on:
       db:
@@ -42,7 +42,7 @@ services:
       DATABASE_HOST: db
       DATABASE_PORT: 3306
       DATABASE_USER: test_user
-      DATABASE_PASSWORD: test_password
+      DATABASE_PASSWORD: 1234
       DATABASE_NAME: test_db
     depends_on:
       db:
