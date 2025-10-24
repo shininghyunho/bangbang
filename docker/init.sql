@@ -28,6 +28,3 @@ CREATE TABLE listing_schedule (
     FOREIGN KEY (listingId) REFERENCES listings(id) ON DELETE CASCADE,
     INDEX IDX_search (date, isAvailable, price, listingId)
 );
-
-GRANT ALL PRIVILEGES ON test_db.* TO 'test_user'@'%';
-FLUSH PRIVILEGES;
