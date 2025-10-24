@@ -1,13 +1,17 @@
-import { Repository, DataSource } from 'typeorm';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Listing } from '../entities/listing.entity';
 import { SearchListingsRequestDto } from '../dto/search-listings.request.dto';
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24; // Milliseconds in a day
 
-export class ListingRepository extends Repository<Listing> {
-  constructor(private dataSource: DataSource) {
-    super(Listing, dataSource.createEntityManager());
-  }
+@Injectable()
+export class ListingRepository {
+  constructor(
+    @InjectRepository(Listing)
+    private readonly repository: Repository<Listing>,
+  ) {}
 
   async searchListings(searchDto: SearchListingsRequestDto): Promise<Listing[]> {
     const { fromDate, toDate, minPrice, maxPrice, guestSize, infantSize } = searchDto;
@@ -19,7 +23,8 @@ export class ListingRepository extends Repository<Listing> {
     const diffDays = Math.ceil(diffTime / MS_PER_DAY) + 1;
 
     // 서브쿼리를 사용하여 조건을 만족하는 listingId를 찾습니다.
-    const subQuery = this.createQueryBuilder('listing_sub')
+    const subQuery = this.repository
+      .createQueryBuilder('listing_sub')
       .select('listing_sub.id')
       .innerJoin('listing_sub.schedules', 'schedule_sub')
       .where('schedule_sub.date BETWEEN :startDate AND :endDate', { startDate, endDate })
@@ -29,7 +34,8 @@ export class ListingRepository extends Repository<Listing> {
       .having('COUNT(DISTINCT schedule_sub.date) = :diffDays', { diffDays });
 
     // 메인 쿼리에서 서브쿼리의 결과를 사용하여 listing을 필터링하고 schedules를 로드합니다.
-    const query = this.createQueryBuilder('listing')
+    const query = this.repository
+      .createQueryBuilder('listing')
       .innerJoinAndSelect('listing.schedules', 'schedule')
       .where('listing.guestCapacity >= :guestSize', { guestSize })
       .andWhere('listing.infantCapacity >= :infantSize', { infantSize })

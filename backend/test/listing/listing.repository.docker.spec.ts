@@ -39,14 +39,15 @@ describe('ListingRepository (통합 테스트)', () => {
             password: configService.get<string>('DATABASE_PASSWORD'),
             database: configService.get<string>('DATABASE_NAME'),
             entities: [Listing, ListingSchedule, User],
-            synchronize: true, // 프로덕션에서는 synchronize: true를 주의해서 사용하세요
+            synchronize: true,
+            dropSchema: true, // 테스트 시 스키마를 매번 새로 생성
             logging: false,
           }),
           inject: [ConfigService],
         }),
-        TypeOrmModule.forFeature([Listing, ListingSchedule, User]), // 리포지토리 직접 접근을 위한 엔티티 임포트
+        TypeOrmModule.forFeature([Listing, ListingSchedule, User]),
       ],
-      // providers: [ListingRepository], // <--- 이 줄을 제거
+      providers: [ListingRepository],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -54,17 +55,10 @@ describe('ListingRepository (통합 테스트)', () => {
 
     dataSource = moduleFixture.get<DataSource>(DataSource);
     // DataSource에서 ListingRepository 가져오기
-    listingRepository = new ListingRepository(dataSource);
+    listingRepository = moduleFixture.get<ListingRepository>(ListingRepository);
     userRepository = dataSource.getRepository(User);
     listingEntityRepository = dataSource.getRepository(Listing);
     listingScheduleRepository = dataSource.getRepository(ListingSchedule);
-
-    // 테스트 전에 데이터베이스 초기화
-    await listingScheduleRepository.query('SET FOREIGN_KEY_CHECKS = 0;');
-    await listingScheduleRepository.clear();
-    await listingEntityRepository.clear();
-    await userRepository.clear();
-    await listingScheduleRepository.query('SET FOREIGN_KEY_CHECKS = 1;');
 
     // 테스트 데이터 삽입
     testUser = await userRepository.save({
@@ -121,12 +115,6 @@ describe('ListingRepository (통합 테스트)', () => {
   });
 
   afterAll(async () => {
-    // 테스트 후 데이터베이스 초기화
-    await listingScheduleRepository.query('SET FOREIGN_KEY_CHECKS = 0;');
-    await listingScheduleRepository.clear();
-    await listingEntityRepository.clear();
-    await userRepository.clear();
-    await listingScheduleRepository.query('SET FOREIGN_KEY_CHECKS = 1;');
     await app.close();
   });
 

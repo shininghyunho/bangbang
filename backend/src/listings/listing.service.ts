@@ -1,18 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Listing } from './entities/listing.entity';
-import { ListingSchedule } from './entities/listing-schedule.entity';
 import { SearchListingsRequestDto } from './dto/search-listings.request.dto';
 import { ListingResponseDto } from './dto/listing.response.dto';
 import { ListingRepository } from './repositories/listing.repository';
 
 @Injectable()
 export class ListingService {
-  constructor(
-    @InjectRepository(Listing)
-    private listingsRepository: ListingRepository,
-  ) {}
+  constructor(private listingsRepository: ListingRepository) {}
 
   async searchListings(searchDto: SearchListingsRequestDto): Promise<ListingResponseDto[]> {
     const foundListings = await this.listingsRepository.searchListings(searchDto);
