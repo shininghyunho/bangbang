@@ -67,6 +67,7 @@ graph LR
 ## 이번주 목표.
 - 밸런스.
 - 기본기.
+- 검색 컴포넌트를 만들고 검색 API 까지 만들기!
 ### 프론트.
 - 기본기에 충실.
 - [프론트 계획](https://www.notion.so/P4-wk2-20251020-292748edda9b80909881e4dcf9f12529?pvs=24)
@@ -96,3 +97,103 @@ graph TD
 ```
 
 ## [물리적 DB 구조(DDL)](./첨부파일/DDL.md)
+
+## ERD
+```mermaid
+erDiagram
+    users {
+        BIGINT id PK
+        VARCHAR email
+        VARCHAR password
+        VARCHAR name
+    }
+
+    roles {
+        INT id PK
+        VARCHAR name
+    }
+
+    user_roles {
+        BIGINT userId PK,FK
+        INT roleId PK,FK
+    }
+
+    listings {
+        BIGINT id PK
+        BIGINT hostId FK
+        VARCHAR name
+        TEXT description
+        INT guestCapacity
+        INT infantCapacity
+        VARCHAR address
+    }
+
+    listing_schedule {
+        BIGINT listingId PK,FK
+        DATE date PK
+        DECIMAL price
+        BOOLEAN isAvailable
+        DATETIME createdAt
+        DATETIME updatedAt
+    }
+
+    bookings {
+        BIGINT id PK
+        BIGINT listingId FK
+        BIGINT userId FK
+        DATE checkInDate
+        DATE checkOutDate
+        INT guestCount
+        INT infantCount
+        DECIMAL totalPrice
+        VARCHAR status
+        DATETIME createdAt
+        DATETIME updatedAt
+    }
+
+    users ||--o{ listings : "has"
+    users ||--o{ user_roles : "has"
+    roles ||--o{ user_roles : "has"
+    listings ||--o{ listing_schedule : "has"
+    listings ||--o{ bookings : "has"
+    users ||--o{ bookings : "makes"
+```
+## 이해을 위한 예제 데이터들.
+
+### users
+```
+id, email, password, name
+1 user1@example.com hashed_password1 User_One
+2 user2@example.com hashed_password2 User_Two
+```
+### roles
+```
+id, name
+1 ROLE_USER
+2 ROLE_HOST
+```
+### user_roles
+```
+userId, roleId
+1 1
+1 2
+2 1
+```
+### listings
+```
+id, hostId, name, description, guestCapacity, infantCapacity, address
+1 1 "Cozy Apartment" "A lovely place in the city center" 2 0 "123 Main St"
+2 1 "Spacious Villa" "Perfect for families" 6 2 "456 Oak Ave"
+```
+### listing_schedule
+```
+listingId, date, price, isAvailable
+1 2025-10-24 100000 true
+1 2025-10-25 110000 true
+2 2025-10-24 250000 true
+```
+### bookings
+```
+id, listingId, userId, checkInDate, checkOutDate, guestCount, infantCount, totalPrice, status
+1 1 2 2025-10-24 2025-10-26 2 0 210000 PENDING
+```
