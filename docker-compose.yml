@@ -16,7 +16,7 @@ services:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       timeout: 20s
       retries: 10
-    command: --sql-mode="" # ONLY_FULL_GROUP_BY 모드 비활성화
+    command: --sql-mode=""
 
   backend:
     build:
@@ -34,7 +34,7 @@ services:
       db:
         condition: service_healthy
 
-  test: # New service for running tests
+  test:
     build:
       context: ./backend
       dockerfile: Dockerfile
