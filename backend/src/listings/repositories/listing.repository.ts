@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Listing } from '../entities/listing.entity';
 import { SearchListingsRequestDto } from '../dto/search-listings.request.dto';
+import { ListingSchedule } from '../entities/listing-schedule.entity';
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24; // Milliseconds in a day
 
@@ -11,6 +12,7 @@ export class ListingRepository {
   constructor(
     @InjectRepository(Listing)
     private readonly repository: Repository<Listing>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async searchListings(searchDto: SearchListingsRequestDto): Promise<Listing[]> {
@@ -22,30 +24,28 @@ export class ListingRepository {
     const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
     const diffDays = Math.ceil(diffTime / MS_PER_DAY) + 1;
 
-    // 서브쿼리를 사용하여 조건을 만족하는 listingId를 찾습니다.
-    const subQuery = this.repository
-      .createQueryBuilder('listing_sub')
-      .select('listing_sub.id')
-      .innerJoin('listing_sub.schedules', 'schedule_sub')
+    // 서브쿼리
+    const subQuery = this.dataSource
+      .createQueryBuilder(ListingSchedule, 'schedule_sub')
+      .select('schedule_sub.listingId')
       .where('schedule_sub.date BETWEEN :startDate AND :endDate', { startDate, endDate })
       .andWhere('schedule_sub.isAvailable = :isAvailable', { isAvailable: true })
       .andWhere('schedule_sub.price BETWEEN :minPrice AND :maxPrice', { minPrice, maxPrice })
-      .groupBy('listing_sub.id')
+      .groupBy('schedule_sub.listingId')
       .having('COUNT(DISTINCT schedule_sub.date) = :diffDays', { diffDays });
 
-    // 메인 쿼리에서 서브쿼리의 결과를 사용하여 listing을 필터링하고 schedules를 로드합니다.
+    // 메인 쿼리
     const query = this.repository
       .createQueryBuilder('listing')
       .innerJoinAndSelect('listing.schedules', 'schedule')
       .where('listing.guestCapacity >= :guestSize', { guestSize })
       .andWhere('listing.infantCapacity >= :infantSize', { infantSize })
-      .andWhere('listing.id IN (' + subQuery.getQuery() + ')') // 서브쿼리 결과 사용
-      // 메인 쿼리에서도 schedule에 대한 필터링 조건을 추가합니다.
+      .andWhere('listing.id IN (' + subQuery.getQuery() + ')')
+      // 더블 체크
       .andWhere('schedule.date BETWEEN :startDate AND :endDate', { startDate, endDate })
       .andWhere('schedule.isAvailable = :isAvailable', { isAvailable: true })
       .andWhere('schedule.price BETWEEN :minPrice AND :maxPrice', { minPrice, maxPrice });
 
-    // 서브쿼리의 파라미터를 메인 쿼리에 병합합니다.
     query.setParameters(subQuery.getParameters());
 
     return query.getMany();
