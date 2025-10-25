@@ -1,6 +1,6 @@
 import {
   Entity,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   Column,
   ManyToOne,
   JoinColumn,
@@ -14,10 +14,13 @@ import { Listing } from './listing.entity';
 @Entity('listing_schedule')
 @Index(['date', 'isAvailable', 'price', 'listingId']) // IDX_search 인덱스 반영
 export class ListingSchedule {
-  @PrimaryColumn({ type: 'bigint', name: 'listingId' })
+  @PrimaryGeneratedColumn('increment')
+  id: number;
+
+  @Column({ type: 'bigint', name: 'listingId' })
   listingId: number;
 
-  @PrimaryColumn({ type: 'date' })
+  @Column({ type: 'date' })
   date: Date;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
