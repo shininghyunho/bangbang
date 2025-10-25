@@ -26,5 +26,6 @@ CREATE TABLE listing_schedule (
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (listingId) REFERENCES listings(id) ON DELETE CASCADE,
-    INDEX IDX_search (date, isAvailable, price, listingId)
+    INDEX IDX_search (isAvailable ,date, price, listingId),
+    INDEX IDX_join (listingId, isAvailable, date, price)
 );
