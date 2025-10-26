@@ -32,7 +32,7 @@ export class ListingRepository {
       .andWhere('schedule_sub.isAvailable = :isAvailable', { isAvailable: true })
       .andWhere('schedule_sub.price BETWEEN :minPrice AND :maxPrice', { minPrice, maxPrice })
       .groupBy('schedule_sub.listingId')
-      .having('COUNT(DISTINCT schedule_sub.date) = :diffDays', { diffDays });
+      .having('COUNT(schedule_sub.date) = :diffDays', { diffDays });
 
     // 메인 쿼리
     const query = this.repository
