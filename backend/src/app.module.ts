@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ListingModule } from './listings/listing.module';
 import { Listing } from './listings/entities/listing.entity';
 import { ListingSchedule } from './listings/entities/listing-schedule.entity';
@@ -29,7 +27,7 @@ import { User } from './users/entities/user.entity';
     }),
     ListingModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
