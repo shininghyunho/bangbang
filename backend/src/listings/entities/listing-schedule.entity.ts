@@ -12,27 +12,28 @@ import {
 import { Listing } from './listing.entity';
 
 @Entity('listing_schedule')
-@Index(['date', 'isAvailable', 'price', 'listingId']) // IDX_search 인덱스 반영
+@Index('idx_search_01', ['date', 'price'])
 export class ListingSchedule {
-  @PrimaryGeneratedColumn('increment')
-  id: number;
+  @PrimaryGeneratedColumn('increment', { type: 'bigint' })
+  id: bigint;
 
+  @Index('fk_schedule_listingId')
   @Column({ type: 'bigint', name: 'listingId' })
-  listingId: number;
+  listingId: bigint;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', nullable: false })
   date: Date;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   price: number;
 
-  @Column({ type: 'boolean', default: true, nullable: false })
+  @Column({ type: 'tinyint', width: 1, default: true, nullable: false })
   isAvailable: boolean;
 
-  @CreateDateColumn({ type: 'datetime', name: 'createdAt' })
+  @CreateDateColumn({ type: 'datetime' })
   createdAt: Date;
 
-  @UpdateDateColumn({ type: 'datetime', name: 'updatedAt' })
+  @UpdateDateColumn({ type: 'datetime' })
   updatedAt: Date;
 
   @ManyToOne(() => Listing, (listing) => listing.schedules, { onDelete: 'CASCADE' })

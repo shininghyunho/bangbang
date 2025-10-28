@@ -5,6 +5,7 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
+  Index,
 } from 'typeorm';
 
 import { User } from '../../users/entities/user.entity';
@@ -15,6 +16,7 @@ export class Listing {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
   id: bigint;
 
+  @Index('fk_listings_hostId')
   @Column({ type: 'bigint', nullable: true })
   hostId: bigint;
 
