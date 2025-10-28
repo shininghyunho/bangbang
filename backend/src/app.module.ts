@@ -8,9 +8,7 @@ import { User } from './users/entities/user.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
+    ConfigModule.forRoot({}),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -22,12 +20,11 @@ import { User } from './users/entities/user.entity';
         database: configService.get<string>('DATABASE_NAME'),
         entities: [Listing, ListingSchedule, User],
         synchronize: true,
+        logging: true,
       }),
       inject: [ConfigService],
     }),
     ListingModule,
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}

@@ -8,7 +8,7 @@ import { ListingRepository } from './repositories/listing.repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Listing, ListingSchedule])],
-  providers: [ListingService, ListingRepository],
   controllers: [ListingController],
+  providers: [ListingService, ListingRepository],
 })
 export class ListingModule {}
