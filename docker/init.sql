@@ -5,21 +5,20 @@ CREATE TABLE `users` (
     `name` varchar(20) NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `email` (`email`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
+) ENGINE = InnoDB AUTO_INCREMENT = 1001 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
 
 CREATE TABLE `listings` (
     `id` bigint NOT NULL AUTO_INCREMENT,
     `hostId` bigint DEFAULT NULL,
     `name` varchar(50) NOT NULL,
     `description` text,
-    `guestCapacity` int NOT NULL DEFAULT 1,
-    `infantCapacity` int NOT NULL DEFAULT 0,
+    `guestCapacity` int NOT NULL DEFAULT '1',
+    `infantCapacity` int NOT NULL DEFAULT '0',
     `address` varchar(100) DEFAULT NULL,
     PRIMARY KEY (`id`),
     KEY `fk_listings_hostId` (`hostId`),
-    INDEX `idx_capacity` (`guestCapacity`, `infantCapacity`),
     CONSTRAINT `fk_listings_hostId` FOREIGN KEY (`hostId`) REFERENCES `users` (`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
+) ENGINE = InnoDB AUTO_INCREMENT = 1001 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
 
 CREATE TABLE `listing_schedule` (
     `id` bigint NOT NULL AUTO_INCREMENT,
@@ -33,4 +32,4 @@ CREATE TABLE `listing_schedule` (
     KEY `fk_schedule_listingId` (`listingId`),
     KEY `idx_search_01` (`date`, `price`),
     CONSTRAINT `fk_schedule_listingId` FOREIGN KEY (`listingId`) REFERENCES `listings` (`id`) ON DELETE CASCADE
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
+) ENGINE = InnoDB AUTO_INCREMENT = 3653001 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
