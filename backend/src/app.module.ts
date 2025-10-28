@@ -22,12 +22,11 @@ import { User } from './users/entities/user.entity';
         database: configService.get<string>('DATABASE_NAME'),
         entities: [Listing, ListingSchedule, User],
         synchronize: true,
+        logging: true,
       }),
       inject: [ConfigService],
     }),
     ListingModule,
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}

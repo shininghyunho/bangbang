@@ -5,7 +5,9 @@ import { ListingResponseDto } from './dto/listing.response.dto';
 
 @Controller('listings')
 export class ListingController {
-  constructor(private readonly listingService: ListingService) {}
+  constructor(
+    private readonly listingService: ListingService
+  ) {}
 
   @Get('search')
   async searchListings(@Query() searchDto: SearchListingsRequestDto): Promise<ListingResponseDto[]> {
