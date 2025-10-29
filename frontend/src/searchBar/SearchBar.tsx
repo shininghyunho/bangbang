@@ -15,9 +15,9 @@ const childWithBorderStyle = {
 
 export default function SearchBar() {
     // too many states...
-    const [dateGroup, setDateGroup] = useState({ fromDate:'', toDate:'' });
-    const [priceGroup, setPriceGroup] = useState({ minPrice: 0, maxPrice: 0 });
-    const [guestGroup, setGuestGroup] = useState({ adult:0, child:0, infant:0 });
+    const [dateGroup, setDateGroup] = useState({ fromDate:'2015-01-01', toDate:'2015-01-02' });
+    const [priceGroup, setPriceGroup] = useState({ minPrice: 100000, maxPrice: 120000 });
+    const [guestGroup, setGuestGroup] = useState({ adult:1, child:1, infant:1 });
 
     const handleSearch = () => {
         fetchSearch(dateGroup, priceGroup, guestGroup);
