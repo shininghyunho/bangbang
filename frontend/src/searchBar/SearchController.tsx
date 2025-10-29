@@ -8,13 +8,12 @@ export const fetchSearch = (dateGroup: DateGroup, priceGroup: PriceGroup, guestG
         toDate: dateGroup.toDate,
         minPrice: String(priceGroup.minPrice),
         maxPrice: String(priceGroup.maxPrice),
-        adultSize: String(guestGroup.adult),
-        childSize: String(guestGroup.child),
+        guestSize: String(guestGroup.adult + guestGroup.child),
         infantSize: String(guestGroup.infant),
     };
 
     const queryParams = new URLSearchParams(params);
-    const url = `/api/search?${queryParams.toString()}`;
+    const url = `http://localhost:3000/listings/search?${queryParams.toString()}`;
 
     // for DEBUG
     alert(`Search URL: ${url}`);
