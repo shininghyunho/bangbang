@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { ListingModule } from './listings/listing.module';
 import { Listing } from './listings/entities/listing.entity';
 import { ListingSchedule } from './listings/entities/listing-schedule.entity';
@@ -9,21 +9,17 @@ import { User } from './users/entities/user.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({}),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
+    TypeOrmModule.forRoot({
         type: 'mysql',
-        host: configService.get<string>('DATABASE_HOST'),
-        port: configService.get<number>('DATABASE_PORT'),
-        username: configService.get<string>('DATABASE_USER'),
-        password: configService.get<string>('DATABASE_PASSWORD'),
-        database: configService.get<string>('DATABASE_NAME'),
+        driver: require('mysql2'),
+        connectorPackage: 'mysql2',
+        host: process.env.DATABASE_HOST,
+        port: Number(process.env.DATABASE_PORT) || 3308,
+        username: process.env.DATABASE_USER || 'test_user',
+        password: process.env.DATABASE_PASSWORD || '1234',
+        database: process.env.DATABASE_NAME || 'test_db',
         entities: [Listing, ListingSchedule, User],
-        synchronize: false,
-        logging: true,
       }),
-      inject: [ConfigService],
-    }),
     ListingModule,
   ],
 })
