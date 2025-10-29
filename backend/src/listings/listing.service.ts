@@ -8,11 +8,11 @@ const RESULT_LIMIT_SIZE = 20;
 @Injectable()
 export class ListingService {
   constructor(
-    private readonly listingRepo: ListingRepository,
+    private readonly listingRepository: ListingRepository,
   ) {}
 
   async searchListings(requestDto: SearchListingsRequestDto): Promise<ListingResponseDto[]> {
-    const listings = await this.listingRepo.searchListings(requestDto);
+    const listings = await this.listingRepository.searchListings(requestDto);
 
     const results: ListingResponseDto[] = listings.map(l => {
       // 함수형 문법으로 totalPrice를 구한다.  
@@ -35,7 +35,7 @@ export class ListingService {
   }
 
   async selectLimit10(): Promise<Listing[]> {
-    const listings = this.listingRepo.selectLimit10();
+    const listings = this.listingRepository.selectLimit10();
     return listings;
   }
 }
