@@ -2,6 +2,7 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { ListingService } from './listing.service';
 import { SearchListingsRequestDto } from './dto/search-listings.request.dto';
 import { ListingResponseDto } from './dto/listing.response.dto';
+import { Listing } from './entities/listing.entity';
 
 @Controller('listings')
 export class ListingController {
@@ -12,5 +13,10 @@ export class ListingController {
   @Get('search')
   async searchListings(@Query() searchDto: SearchListingsRequestDto): Promise<ListingResponseDto[]> {
     return this.listingService.searchListings(searchDto);
+  }
+
+  @Get('all')
+  async all(): Promise<Listing[]> {
+    return this.listingService.selectLimit10();
   }
 }

@@ -2,26 +2,40 @@ import { Injectable } from '@nestjs/common';
 import { SearchListingsRequestDto } from './dto/search-listings.request.dto';
 import { ListingResponseDto } from './dto/listing.response.dto';
 import { ListingRepository } from './repositories/listing.repository';
+import { Listing } from './entities/listing.entity';
 
+const RESULT_LIMIT_SIZE = 20;
 @Injectable()
 export class ListingService {
   constructor(
-    private readonly listingsRepository: ListingRepository
+    private readonly listingRepository: ListingRepository,
   ) {}
 
-  async searchListings(searchDto: SearchListingsRequestDto): Promise<ListingResponseDto[]> {
-    const foundListings = await this.listingsRepository.searchListings(searchDto);
+  async searchListings(requestDto: SearchListingsRequestDto): Promise<ListingResponseDto[]> {
+    const listings = await this.listingRepository.searchListings(requestDto);
 
-    return foundListings.map(listing => {
-      const totalPrice = listing.schedules.reduce((sum, schedule) => sum + schedule.price, 0);
-      return {
-        name: listing.name,
-        description: listing.description,
-        address: listing.address,
-        totalPrice: totalPrice,
-        guestCapacity: listing.guestCapacity,
-        infantCapacity: listing.infantCapacity,
-      };
-    });
+    const results: ListingResponseDto[] = listings.map(l => {
+      // 함수형 문법으로 totalPrice를 구한다.  
+      const totalPrice = l.schedules.reduce((acc, s) => acc + Number(s.price), 0);
+        return {
+          name: l.name,
+          description: l.description,
+          address: l.address,
+          totalPrice: totalPrice,
+          guestCapacity: l.guestCapacity,
+          infantCapacity: l.infantCapacity,
+        };
+      }
+    );
+
+    // return 값은 오름차순 정렬후, RESULT_LIMIT_SIZE 이하로만 반환한다.
+    return results
+      .sort((a, b) => a.totalPrice - b.totalPrice)
+      .slice(0, RESULT_LIMIT_SIZE);
+  }
+
+  async selectLimit10(): Promise<Listing[]> {
+    const listings = this.listingRepository.selectLimit10();
+    return listings;
   }
 }

@@ -8,19 +8,22 @@ import { User } from './users/entities/user.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({}),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         type: 'mysql',
-        host: configService.get<string>('DATABASE_HOST'),
-        port: configService.get<number>('DATABASE_PORT'),
-        username: configService.get<string>('DATABASE_USER'),
-        password: configService.get<string>('DATABASE_PASSWORD'),
-        database: configService.get<string>('DATABASE_NAME'),
+        driver: require('mysql2'),
+        connectorPackage: 'mysql2',
+        host: configService.get<string>('DATABASE_HOST', 'localhost'),
+        port: configService.get<number>('DATABASE_PORT', 3308),
+        username: configService.get<string>('DATABASE_USER', 'test_user'),
+        password: configService.get<string>('DATABASE_PASSWORD', '1234'),
+        database: configService.get<string>('DATABASE_NAME', 'test_db'),
         entities: [Listing, ListingSchedule, User],
-        synchronize: true,
-        logging: true,
+        synchronize:false,
       }),
       inject: [ConfigService],
     }),

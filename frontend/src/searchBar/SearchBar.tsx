@@ -3,6 +3,7 @@ import GuestInput from "./guest/GuestInput";
 import PriceInput from "./price/PriceInput";
 import DateInput from "./date/DateInput";
 import { fetchSearch } from "./SearchController";
+import { useSearch } from "./SearchContext";
 
 const childStyle = {
     padding: '0.5rem 1rem',
@@ -14,13 +15,24 @@ const childWithBorderStyle = {
 };
 
 export default function SearchBar() {
-    // too many states...
-    const [dateGroup, setDateGroup] = useState({ fromDate:'', toDate:'' });
-    const [priceGroup, setPriceGroup] = useState({ minPrice: 0, maxPrice: 0 });
-    const [guestGroup, setGuestGroup] = useState({ adult:0, child:0, infant:0 });
+    // 체크인 체크아웃 날짜, 최소 최대 금액, 성인 어린이 유아 수
+    const [dateGroup, setDateGroup] = useState({ fromDate:'2015-01-01', toDate:'2015-01-02' });
+    const [priceGroup, setPriceGroup] = useState({ minPrice: 100000, maxPrice: 120000 });
+    const [guestGroup, setGuestGroup] = useState({ adult:1, child:1, infant:1 });
 
-    const handleSearch = () => {
-        fetchSearch(dateGroup, priceGroup, guestGroup);
+    const { setSearchResults, setIsLoading } = useSearch();
+
+    const handleSearch = async () => {
+        setIsLoading(true);
+        try {
+            const data = await fetchSearch(dateGroup, priceGroup, guestGroup);
+            setSearchResults(data);
+        } catch (error) {
+            console.error('Search failed:', error);
+            setSearchResults([]);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return(
