@@ -3,6 +3,7 @@ import GuestInput from "./guest/GuestInput";
 import PriceInput from "./price/PriceInput";
 import DateInput from "./date/DateInput";
 import { fetchSearch } from "./SearchController";
+import { useSearch } from "./SearchContext";
 
 const childStyle = {
     padding: '0.5rem 1rem',
@@ -19,8 +20,19 @@ export default function SearchBar() {
     const [priceGroup, setPriceGroup] = useState({ minPrice: 100000, maxPrice: 120000 });
     const [guestGroup, setGuestGroup] = useState({ adult:1, child:1, infant:1 });
 
-    const handleSearch = () => {
-        fetchSearch(dateGroup, priceGroup, guestGroup);
+    const { setSearchResults, setIsLoading } = useSearch();
+
+    const handleSearch = async () => {
+        setIsLoading(true);
+        try {
+            const data = await fetchSearch(dateGroup, priceGroup, guestGroup);
+            setSearchResults(data);
+        } catch (error) {
+            console.error('Search failed:', error);
+            setSearchResults([]); // 에러 발생 시 결과 초기화
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return(
