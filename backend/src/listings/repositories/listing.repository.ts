@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Listing } from '../entities/listing.entity';
@@ -14,6 +14,9 @@ export class ListingRepository {
     private readonly repository: Repository<Listing>,
     private readonly dataSource: DataSource,
   ) {}
+
+  private readonly logger = new Logger(ListingRepository.name);
+
 
   async searchListings(searchDto: SearchListingsRequestDto): Promise<Listing[]> {
     const { fromDate, toDate, minPrice, maxPrice, guestSize, infantSize } = searchDto;
@@ -48,6 +51,10 @@ export class ListingRepository {
 
     query.setParameters(subQuery.getParameters());
 
+    // 생성된 SQL과 파라미터 로깅
+    this.logger.debug(`Executing query: ${query.getSql()}`);
+    this.logger.debug(`With parameters: ${JSON.stringify(query.getParameters())}`);
+    
     return query.getMany();
   }
 }
