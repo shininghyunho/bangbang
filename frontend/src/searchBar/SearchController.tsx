@@ -22,9 +22,7 @@ export const fetchSearch = async (dateGroup: DateGroup, priceGroup: PriceGroup, 
 
     const response = await fetch(url);
 
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
     return await response.json();
 };

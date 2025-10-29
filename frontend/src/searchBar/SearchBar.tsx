@@ -15,7 +15,7 @@ const childWithBorderStyle = {
 };
 
 export default function SearchBar() {
-    // too many states...
+    // 체크인 체크아웃 날짜, 최소 최대 금액, 성인 어린이 유아 수
     const [dateGroup, setDateGroup] = useState({ fromDate:'2015-01-01', toDate:'2015-01-02' });
     const [priceGroup, setPriceGroup] = useState({ minPrice: 100000, maxPrice: 120000 });
     const [guestGroup, setGuestGroup] = useState({ adult:1, child:1, infant:1 });
@@ -29,7 +29,7 @@ export default function SearchBar() {
             setSearchResults(data);
         } catch (error) {
             console.error('Search failed:', error);
-            setSearchResults([]); // 에러 발생 시 결과 초기화
+            setSearchResults([]);
         } finally {
             setIsLoading(false);
         }
