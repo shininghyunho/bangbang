@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { SearchListingsRequestDto } from './dto/search-listings.request.dto';
 import { ListingResponseDto } from './dto/listing.response.dto';
 import { ListingRepository } from './repositories/listing.repository';
+import { Listing } from './entities/listing.entity';
 
 const RESULT_LIMIT_SIZE = 20;
 @Injectable()
@@ -31,5 +32,10 @@ export class ListingService {
     return results
       .sort((a, b) => a.totalPrice - b.totalPrice)
       .slice(0, RESULT_LIMIT_SIZE);
+  }
+
+  async selectLimit10(): Promise<Listing[]> {
+    const listings = this.listingRepo.selectLimit10();
+    return listings;
   }
 }

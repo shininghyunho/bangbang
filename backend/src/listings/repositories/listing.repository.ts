@@ -57,4 +57,10 @@ export class ListingRepository {
     
     return query.getMany();
   }
+
+  async selectLimit10(): Promise<Listing[]> {
+    return this.repository.createQueryBuilder('listing')
+      .take(10)
+      .getMany();
+  }
 }
