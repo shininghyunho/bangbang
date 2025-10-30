@@ -1,19 +1,59 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { KakaoLoginService, KakaoUserInfo } from './kakao-login.service';
+import { ProviderRepository } from './repositories/provider.repository';
+import { OauthAccountRepository } from './repositories/oauth_account.repository';
+import { UserRepository } from '../users/repositories/user.repository';
+import { User } from '../users/entities/user.entity';
+import { OauthAccount } from './entities/oauth_account.entity';
+import { Transactional } from 'typeorm-transactional';
+import { LoginUserResponseDto } from './dto/login-user.response.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly kakaoLoginService: KakaoLoginService,
+    private readonly providerRepository: ProviderRepository,
+    private readonly oauthAccountRepository: OauthAccountRepository,
+    private readonly userRepository: UserRepository,
   ) {}
 
-  async kakaoLogin(code: string) {
-    const kakaoToken = await this.kakaoLoginService.getKakaoToken(code);
-    console.log('kakaoToken:', kakaoToken);
-    const accessToken = kakaoToken.access_token;
-    const kakaoUserInfo = await this.kakaoLoginService.getKakaoUserInfo(accessToken);
-    console.log('kakaoUserInfo:', kakaoUserInfo);
+  @Transactional()
+  async kakaoLogin(code: string): Promise<LoginUserResponseDto> {
+    const kakaoUserInfo = await this.getKakaoUserInfo(code);
 
-    // 받아온 사용자 정보(kakaoUserInfo)를 저장하고 JWT 토큰 발급
+    const provider = await this.providerRepository.findByName('kakao');
+    if (!provider) throw new NotFoundException('kakao라는 Provider는 없습니다.');
+
+    const providerUserId = kakaoUserInfo.id.toString();
+    let oauthAccount = await this.oauthAccountRepository.findByProvider(provider.id, providerUserId);
+    if (oauthAccount) {
+      const user = await this.userRepository.findById(oauthAccount.userId);
+      if(!user) throw new NotFoundException('User NOT_FOUND');
+      return { name: user.name };
+    }
+    const savedUser = await this.userRepository.save(this.getNewUser(kakaoUserInfo.properties.nickname));
+    this.saveOauthAccount(provider.id, providerUserId, savedUser.id);
+
+    return { name: savedUser.name, imgUrl: kakaoUserInfo.kakao_account.profile.profile_image_url };
+  }
+
+  private getNewUser(name: string): User {
+    const newUser = new User();
+    newUser.name = name
+    return newUser;
+  }
+  
+  private async getKakaoUserInfo(code: string): Promise<KakaoUserInfo> {
+    const kakaoToken = await this.kakaoLoginService.getKakaoToken(code);
+    const accessToken = kakaoToken.access_token;
+    return this.kakaoLoginService.getKakaoUserInfo(accessToken);
+  }
+  
+  private async saveOauthAccount(providerId: number, providerUserId: string, userId: bigint) {
+    const newOauthAccount = new OauthAccount();
+    newOauthAccount.providerId = providerId;
+    newOauthAccount.providerUserId = providerUserId;
+    newOauthAccount.userId = userId;
+    await this.oauthAccountRepository.save(newOauthAccount);
   }
 }
