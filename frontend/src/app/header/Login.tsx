@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-const KAKAO_REST_API_KEY = import.meta.env.KAKAO_REST_API_KEY;
-const REDIRECT_URI = "http://localhost:3000/auth/kakao/callback";
+const KAKAO_REST_API_KEY = import.meta.env.VITE_KAKAO_REST_API_KEY;
+const REDIRECT_URI = import.meta.env.VITE_REDIRECT_URI;
 
 export function Login() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -11,6 +11,8 @@ export function Login() {
   };
 
   const handleLogin = () => {
+    console.log(KAKAO_REST_API_KEY);
+    console.log(REDIRECT_URI);
     const kakaoLoginUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_REST_API_KEY}&redirect_uri=${REDIRECT_URI}`;
     location.href = kakaoLoginUrl;
   };
