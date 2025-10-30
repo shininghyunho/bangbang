@@ -7,6 +7,7 @@ export function Main() {
       <h1 style={{ textAlign: 'center' }}>여긴 Main 컴포넌트입니다.</h1>
       <div style={{ display: 'flex', width: '100%', minHeight: '60vh' }}>
         <div style={{ width: '50%', overflow: 'auto', borderRight: '1px solid #ccc' }}>
+          <h1 style={{ textAlign: 'center' }}>여긴 검색 컴포넌트입니다.</h1>
           <SearchResult />
         </div>
         <div style={{ width: '50%' }}>
