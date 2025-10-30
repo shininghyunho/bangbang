@@ -29,13 +29,26 @@ export function Login() {
     location.href = kakaoLoginUrl;
   };
 
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(`${BACKEND_API_BASE_URL}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include', // 세션 쿠키를 함께 보내기 위해
+      });
+      if (response.ok) setUser(null);
+      else console.error('로그아웃 실패');
+    } catch (error) {
+      console.error('로그아웃 요청 중 오류 발생:', error);
+    }
+  };
+
   return (
     <div style={{ position: 'absolute', top: '1rem', right: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
         {user ? (
           <>
             <img src={user.imageUrl} alt={user.name} style={{ width: '40px', height: '40px', borderRadius: '50%', cursor: 'pointer' }} />
             <span>{user.name}님</span>
-            <button onClick={() => setUser(null)}>로그아웃</button>
+            <button onClick={handleLogout}>로그아웃</button>
           </>
         ) : (
           <button onClick={handleLogin}>로그인</button>

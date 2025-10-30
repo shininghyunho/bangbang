@@ -10,6 +10,12 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  });
+
   // TypeORM DataSource를 가져와 typeorm-transactional에 등록
   const dataSource = app.get<DataSource>(getDataSourceToken());
   addTransactionalDataSource(dataSource);
