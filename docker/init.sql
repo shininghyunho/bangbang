@@ -45,6 +45,7 @@ CREATE TABLE `oauth_accounts` (
     `provider_id` int NOT NULL,
     `provider_user_id` varchar(255) NOT NULL,
     PRIMARY KEY (`id`),
+    UNIQUE KEY `uq_provider_providerUserId` (`provider_id`,`provider_user_id`),
     CONSTRAINT `fk_oauth_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_oauth_provider_id` FOREIGN KEY (`provider_id`) REFERENCES `providers` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
