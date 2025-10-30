@@ -23,6 +23,15 @@ export interface KakaoUserInfo {
   };
 }
 
+export interface KakaoTokenResponse {
+  token_type: string;
+  access_token: string;
+  expires_in: number;
+  refresh_token: string;
+  refresh_token_expires_in: number;
+  scope: string;
+}
+
 @Injectable()
 export class KakaoLoginService {
   constructor(
@@ -30,7 +39,7 @@ export class KakaoLoginService {
     private readonly configService: ConfigService,
   ) {}
 
-  async getKakaoAccessToken(code: string): Promise<string> {
+  async getKakaoToken(code: string): Promise<KakaoTokenResponse> {
     const KAKAO_REST_API_KEY = this.configService.getOrThrow<string>('KAKAO_REST_API_KEY');
     const KAKAO_CLIENT_SECRET = this.configService.getOrThrow<string>('KAKAO_CLIENT_SECRET');
     const KAKAO_REDIRECT_URI = this.configService.getOrThrow<string>('KAKAO_REDIRECT_URI');
@@ -45,12 +54,11 @@ export class KakaoLoginService {
     };
 
     const response = await firstValueFrom(
-      this.httpService.post(tokenUrl, new URLSearchParams(body).toString(), {
+      this.httpService.post<KakaoTokenResponse>(tokenUrl, new URLSearchParams(body).toString(), {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
       }),
     );
-
-    return response.data.access_token;
+    return response.data;
   }
 
   async getKakaoUserInfo(accessToken: string): Promise<KakaoUserInfo> {

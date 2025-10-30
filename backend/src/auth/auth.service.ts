@@ -7,11 +7,13 @@ export class AuthService {
     private readonly kakaoLoginService: KakaoLoginService,
   ) {}
 
-  async kakaoLogin(code: string): Promise<KakaoUserInfo> {
-    const accessToken = await this.kakaoLoginService.getKakaoAccessToken(code);
+  async kakaoLogin(code: string) {
+    const kakaoToken = await this.kakaoLoginService.getKakaoToken(code);
+    console.log('kakaoToken:', kakaoToken);
+    const accessToken = kakaoToken.access_token;
     const kakaoUserInfo = await this.kakaoLoginService.getKakaoUserInfo(accessToken);
+    console.log('kakaoUserInfo:', kakaoUserInfo);
 
     // 받아온 사용자 정보(kakaoUserInfo)를 저장하고 JWT 토큰 발급
-    return kakaoUserInfo;
   }
 }
