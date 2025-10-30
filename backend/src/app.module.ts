@@ -5,6 +5,7 @@ import { ListingModule } from './listings/listing.module';
 import { Listing } from './listings/entities/listing.entity';
 import { ListingSchedule } from './listings/entities/listing-schedule.entity';
 import { User } from './users/entities/user.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { User } from './users/entities/user.entity';
       inject: [ConfigService],
     }),
     ListingModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
