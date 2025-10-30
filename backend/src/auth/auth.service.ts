@@ -28,18 +28,21 @@ export class AuthService {
     let oauthAccount = await this.oauthAccountRepository.findByProvider(provider.id, providerUserId);
     
     let userName="";
+    let userId: bigint;
     if (oauthAccount) {
       const user = await this.userRepository.findById(oauthAccount.userId);
       if(!user) throw new NotFoundException('User NOT_FOUND');
       userName=user.name;
+      userId = user.id;
     }
     else {
       const savedUser = await this.userRepository.save(this.getNewUser(kakaoUserInfo.properties.nickname));
-      this.saveOauthAccount(provider.id, providerUserId, savedUser.id);
+      await this.saveOauthAccount(provider.id, providerUserId, savedUser.id);
+      userId = savedUser.id;
       userName=savedUser.name;
     }
 
-    return { name: userName, imgUrl: kakaoUserInfo.kakao_account.profile.profile_image_url };
+    return { name: userName, imgUrl: kakaoUserInfo.kakao_account.profile.profile_image_url, userId: userId };
   }
 
   private getNewUser(name: string): User {
