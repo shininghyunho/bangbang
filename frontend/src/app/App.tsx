@@ -3,14 +3,20 @@ import { Header } from "./Header"
 import { Main } from "./Main"
 import { SearchProvider } from "../searchBar/SearchContext"
 
+const borderStyle = { borderBottom: '1px solid #ccc', };
+
 function App() {
   return(
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <SearchProvider>
-        <Header/>
-        <Main/>
+        <div style={borderStyle}>
+          <Header/>
+        </div>
+        <div style={{ ...borderStyle, flex: 1 }}>
+          <Main/>
+        </div>
       </SearchProvider>
-      <Footer/>
+      <Footer />
     </div>
   )
 }
