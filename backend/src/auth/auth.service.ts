@@ -1,59 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
-import { ConfigService } from '@nestjs/config';
-import { firstValueFrom } from 'rxjs';
-
-interface KakaoUserInfo {
-  id: number;
-  connected_at: string;
-  properties: {
-    nickname: string;
-    profile_image: string;
-    thumbnail_image: string;
-  };
-  kakao_account: any;
-}
+import { KakaoLoginService, KakaoUserInfo } from './kakao-login.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly httpService: HttpService,
-    private readonly configService: ConfigService,
+    private readonly kakaoLoginService: KakaoLoginService,
   ) {}
 
-  async getKakaoAccessToken(code: string): Promise<string> {
-    const KAKAO_REST_API_KEY = this.configService.getOrThrow<string>('KAKAO_REST_API_KEY');
-    const KAKAO_CLIENT_SECRET = this.configService.getOrThrow<string>('KAKAO_CLIENT_SECRET');
-    const KAKAO_REDIRECT_URI = this.configService.getOrThrow<string>('KAKAO_REDIRECT_URI');
+  async kakaoLogin(code: string): Promise<KakaoUserInfo> {
+    const accessToken = await this.kakaoLoginService.getKakaoAccessToken(code);
+    const kakaoUserInfo = await this.kakaoLoginService.getKakaoUserInfo(accessToken);
 
-    const tokenUrl = 'https://kauth.kakao.com/oauth/token';
-    const body = {
-      grant_type: 'authorization_code',
-      client_id: KAKAO_REST_API_KEY,
-      redirect_uri: KAKAO_REDIRECT_URI,
-      code: code,
-      client_secret: KAKAO_CLIENT_SECRET,
-    };
-
-    const response = await firstValueFrom(
-      this.httpService.post(tokenUrl, new URLSearchParams(body).toString(), {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
-      }),
-    );
-
-    return response.data.access_token;
-  }
-
-  async getKakaoUserInfo(accessToken: string): Promise<KakaoUserInfo> {
-    const userInfoUrl = 'https://kapi.kakao.com/v2/user/me';
-
-    const response = await firstValueFrom(
-      this.httpService.get(userInfoUrl, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }),
-    );
-    return response.data;
+    // 받아온 사용자 정보(kakaoUserInfo)를 저장하고 JWT 토큰 발급
+    return kakaoUserInfo;
   }
 }
