@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  db:
+  test_db:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: 1234
@@ -11,8 +11,26 @@ services:
     ports:
       - "3308:3306"
     volumes:
-      - db-volume:/var/lib/mysql
+      - test-db-volume:/var/lib/mysql
       - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    command: --sql-mode=""
+
+  prod_db:
+    image: mysql:8.0 
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: prod_db
+      MYSQL_USER: prod_user
+      MYSQL_PASSWORD: 1234
+    ports:
+      - "3309:3306"
+    volumes:
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - prod-db-volume:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       timeout: 20s
@@ -26,13 +44,13 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_HOST: db
+      DATABASE_HOST: prod_db
       DATABASE_PORT: 3306
-      DATABASE_USER: test_user
+      DATABASE_USER: prod_user
       DATABASE_PASSWORD: 1234
-      DATABASE_NAME: test_db
+      DATABASE_NAME: prod_db
     depends_on:
-      db:
+      prod_db:
         condition: service_healthy
 
   test:
@@ -40,15 +58,16 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      DATABASE_HOST: db
+      DATABASE_HOST: test_db
       DATABASE_PORT: 3306
       DATABASE_USER: test_user
       DATABASE_PASSWORD: 1234
       DATABASE_NAME: test_db
     depends_on:
-      db:
+      test_db:
         condition: service_healthy
     command: ["npm", "run", "test:docker:internal"]
 
 volumes:
-  db-volume:
+  test-db-volume:
+  prod-db-volume:

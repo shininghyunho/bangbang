@@ -5,7 +5,7 @@ CREATE TABLE `users` (
     `name` varchar(20) NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `email` (`email`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 CREATE TABLE `listings` (
     `id` bigint NOT NULL AUTO_INCREMENT,
@@ -17,7 +17,7 @@ CREATE TABLE `listings` (
     `address` varchar(100) DEFAULT NULL,
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_listings_hostId` FOREIGN KEY (`hostId`) REFERENCES `users` (`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 CREATE TABLE `listing_schedule` (
     `id` bigint NOT NULL AUTO_INCREMENT,
@@ -30,7 +30,7 @@ CREATE TABLE `listing_schedule` (
     PRIMARY KEY (`id`),
     KEY `idx_search_01` (`date`, `price`),
     CONSTRAINT `fk_schedule_listingId` FOREIGN KEY (`listingId`) REFERENCES `listings` (`id`) ON DELETE CASCADE
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 CREATE TABLE `providers` (
     `id` int NOT NULL AUTO_INCREMENT,
