@@ -16,8 +16,8 @@ const childWithBorderStyle = {
 
 export default function SearchBar() {
     // 체크인 체크아웃 날짜, 최소 최대 금액, 성인 어린이 유아 수
-    const [dateGroup, setDateGroup] = useState({ fromDate:'2015-01-01', toDate:'2015-01-02' });
-    const [priceGroup, setPriceGroup] = useState({ minPrice: 100000, maxPrice: 120000 });
+    const [dateGroup, setDateGroup] = useState({ fromDate:'2025-01-01', toDate:'2025-01-02' });
+    const [priceGroup, setPriceGroup] = useState({ minPrice: 70000, maxPrice: 120000 });
     const [guestGroup, setGuestGroup] = useState({ adult:1, child:1, infant:1 });
 
     const { setSearchResults, setIsLoading } = useSearch();
