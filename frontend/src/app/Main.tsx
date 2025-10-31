@@ -1,5 +1,5 @@
-import { MapResult } from "../searchBar/MapResult";
-import { SearchResult } from "../searchBar/SearchResult";
+import { MapResult } from "./header/searchBar/MapResult";
+import { SearchResult } from "./header/searchBar/SearchResult";
 
 export function Main() {
   return (

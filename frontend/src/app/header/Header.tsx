@@ -1,4 +1,4 @@
-import SearchBar from "../../searchBar/SearchBar";
+import SearchBar from "./searchBar/SearchBar";
 import { Login } from "./Login";
 
 export function Header() {

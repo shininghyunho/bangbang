@@ -1,7 +1,7 @@
 import { Footer } from "./Footer"
 import { Header } from "./header/Header"
 import { Main } from "./Main"
-import { SearchProvider } from "../searchBar/SearchContext"
+import { SearchProvider } from "./header/searchBar/SearchContext"
 
 const borderStyle = { borderBottom: '1px solid #ccc', };
 
