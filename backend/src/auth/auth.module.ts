@@ -20,8 +20,11 @@ import { UserRepository } from '../users/repositories/user.repository';
   ],
   controllers: [AuthController],
   providers: [
-    AuthService, KakaoLoginService, 
-    ProviderRepository, OauthAccountRepository, UserRepository
+    AuthService,
+    KakaoLoginService,
+    ProviderRepository,
+    OauthAccountRepository,
+    UserRepository,
   ],
 })
 export class AuthModule {}
