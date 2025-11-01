@@ -1,23 +1,25 @@
 version: '3.8'
 
 services:
-  test_db:
-    image: mysql:8.0
+  dev_db:
+    image: mysql:8.0 
     environment:
       MYSQL_ROOT_PASSWORD: 1234
-      MYSQL_DATABASE: test_db
-      MYSQL_USER: test_user
+      MYSQL_DATABASE: dev_db
+      MYSQL_USER: dev_user
       MYSQL_PASSWORD: 1234
     ports:
       - "3308:3306"
     volumes:
-      - test-db-volume:/var/lib/mysql
       - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - dev-db-volume:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       timeout: 20s
       retries: 10
-    command: --sql-mode=""
+    command:
+      - --sql-mode=
+      - --innodb-redo-log-capacity=2147483648 # 2GB
 
   prod_db:
     image: mysql:8.0 
@@ -35,14 +37,45 @@ services:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       timeout: 20s
       retries: 10
-    command: --sql-mode=""
+    command: --sql-mode=
 
-  backend:
+  test_db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: test_db
+      MYSQL_USER: test_user
+      MYSQL_PASSWORD: 1234
+    ports:
+      - "3310:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    command: --sql-mode=
+
+  dev_backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    environment:
+      DATABASE_HOST: dev_db
+      DATABASE_PORT: 3306
+      DATABASE_USER: dev_user
+      DATABASE_PASSWORD: 1234
+      DATABASE_NAME: dev_db
+    depends_on:
+      prod_db:
+        condition: service_healthy
+
+  prod_backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
     environment:
       DATABASE_HOST: prod_db
       DATABASE_PORT: 3306
@@ -53,7 +86,7 @@ services:
       prod_db:
         condition: service_healthy
 
-  test:
+  test_backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -69,5 +102,5 @@ services:
     command: ["npm", "run", "test:docker:internal"]
 
 volumes:
-  test-db-volume:
+  dev-db-volume:
   prod-db-volume:

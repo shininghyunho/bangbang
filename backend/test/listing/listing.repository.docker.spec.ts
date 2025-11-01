@@ -154,13 +154,13 @@ describe('ListingRepository (통합 테스트)', () => {
       expect(result[0].schedules).toBeInstanceOf(Array);
       expect(result[0].schedules.length).toBe(3); // 날짜 범위 내의 예약 가능한 스케줄만 포함되어야 한다
       expect(
-        result[0].schedules.some((s) => s.date === '2023-01-01'),
+        result[0].schedules.some((s) => (s.date as Date).toISOString().startsWith('2023-01-01')),
       ).toBeTruthy();
       expect(
-        result[0].schedules.some((s) => s.date === '2023-01-02'),
+        result[0].schedules.some((s) => (s.date as Date).toISOString().startsWith('2023-01-02')),
       ).toBeTruthy();
       expect(
-        result[0].schedules.some((s) => s.date === '2023-01-03'),
+        result[0].schedules.some((s) => (s.date as Date).toISOString().startsWith('2023-01-03')),
       ).toBeTruthy();
       expect(
         result[0].schedules.every((s) => s.isAvailable === true),
