@@ -1,11 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
+import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
 import { ListingResponseDto } from './../src/listings/dto/listing.response.dto';
 
 describe('숙소 검색 (e2e)', () => {
-  let app: INestApplication;
+  let app: INestApplication<App>;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -41,11 +42,13 @@ describe('숙소 검색 (e2e)', () => {
       .get(`/listings/search?${queryParams}`)
       .expect(200);
 
-    expect(Array.isArray(response.body)).toBe(true);
-    expect(response.body.length).toBeGreaterThanOrEqual(0);
+    const listings = response.body as ListingResponseDto[];
 
-    if (response.body.length > 0) {
-      const firstListing: ListingResponseDto = response.body[0];
+    expect(Array.isArray(listings)).toBe(true);
+    expect(listings.length).toBeGreaterThanOrEqual(0);
+
+    if (listings.length > 0) {
+      const firstListing = listings[0];
       expect(firstListing).toHaveProperty('name');
       expect(typeof firstListing.name).toBe('string');
       expect(firstListing).toHaveProperty('description');
