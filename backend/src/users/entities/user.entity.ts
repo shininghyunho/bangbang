@@ -1,4 +1,4 @@
-import { Column, Entity, Index, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { OauthAccount } from '../../auth/entities/oauth_account.entity';
 import { Listing } from 'src/listings/entities/listing.entity';
 
