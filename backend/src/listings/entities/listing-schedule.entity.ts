@@ -36,7 +36,9 @@ export class ListingSchedule {
   @UpdateDateColumn({ type: 'datetime' })
   updatedAt: Date;
 
-  @ManyToOne(() => Listing, (listing) => listing.schedules, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Listing, (listing) => listing.schedules, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'listingId' })
   listing: Listing;
 }

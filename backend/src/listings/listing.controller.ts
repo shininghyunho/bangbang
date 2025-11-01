@@ -6,12 +6,12 @@ import { Listing } from './entities/listing.entity';
 
 @Controller('listings')
 export class ListingController {
-  constructor(
-    private readonly listingService: ListingService
-  ) {}
+  constructor(private readonly listingService: ListingService) {}
 
   @Get('search')
-  async searchListings(@Query() searchDto: SearchListingsRequestDto): Promise<ListingResponseDto[]> {
+  async searchListings(
+    @Query() searchDto: SearchListingsRequestDto,
+  ): Promise<ListingResponseDto[]> {
     return this.listingService.searchListings(searchDto);
   }
 
