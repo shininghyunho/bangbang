@@ -8,6 +8,7 @@ import { Listing } from '../../src/listings/entities/listing.entity';
 import { ListingSchedule } from '../../src/listings/entities/listing-schedule.entity';
 import { User } from '../../src/users/entities/user.entity';
 import { SearchListingsRequestDto } from '../../src/listings/dto/search-listings.request.dto';
+import * as mysql2 from 'mysql2';
 
 describe('ListingRepository (통합 테스트)', () => {
   let app: INestApplication;
@@ -33,13 +34,13 @@ describe('ListingRepository (통합 테스트)', () => {
           imports: [ConfigModule],
           useFactory: (configService: ConfigService) => ({
             type: 'mysql',
-            driver: require('mysql2'),
+            driver: mysql2,
             connectorPackage: 'mysql2',
-            host: configService.get<string>('DATABASE_HOST'),
-            port: configService.get<number>('DATABASE_PORT'),
-            username: configService.get<string>('DATABASE_USER'),
-            password: configService.get<string>('DATABASE_PASSWORD'),
-            database: configService.get<string>('DATABASE_NAME'),
+            host: configService.getOrThrow<string>('DATABASE_HOST'),
+            port: configService.getOrThrow<number>('DATABASE_PORT'),
+            username: configService.getOrThrow<string>('DATABASE_USER'),
+            password: configService.getOrThrow<string>('DATABASE_PASSWORD'),
+            database: configService.getOrThrow<string>('DATABASE_NAME'),
             entities: [Listing, ListingSchedule, User],
             synchronize: true,
             dropSchema: true, // 테스트 시 스키마를 매번 새로 생성
@@ -80,31 +81,39 @@ describe('ListingRepository (통합 테스트)', () => {
 
     testSchedules = [];
     // 2023-01-01, 2023-01-02, 2023-01-03 예약 가능
-    testSchedules.push(await listingScheduleRepository.save({
-      listingId: testListing.id,
-      date: '2023-01-01',
-      price: 150.00,
-      isAvailable: true,
-    }));
-    testSchedules.push(await listingScheduleRepository.save({
-      listingId: testListing.id,
-      date: '2023-01-02',
-      price: 150.00,
-      isAvailable: true,
-    }));
-    testSchedules.push(await listingScheduleRepository.save({
-      listingId: testListing.id,
-      date: '2023-01-03',
-      price: 150.00,
-      isAvailable: true,
-    }));
+    testSchedules.push(
+      await listingScheduleRepository.save({
+        listingId: testListing.id,
+        date: '2023-01-01',
+        price: 150.0,
+        isAvailable: true,
+      }),
+    );
+    testSchedules.push(
+      await listingScheduleRepository.save({
+        listingId: testListing.id,
+        date: '2023-01-02',
+        price: 150.0,
+        isAvailable: true,
+      }),
+    );
+    testSchedules.push(
+      await listingScheduleRepository.save({
+        listingId: testListing.id,
+        date: '2023-01-03',
+        price: 150.0,
+        isAvailable: true,
+      }),
+    );
     // 2023-01-04 예약 불가능
-    testSchedules.push(await listingScheduleRepository.save({
-      listingId: testListing.id,
-      date: '2023-01-04',
-      price: 150.00,
-      isAvailable: false,
-    }));
+    testSchedules.push(
+      await listingScheduleRepository.save({
+        listingId: testListing.id,
+        date: '2023-01-04',
+        price: 150.0,
+        isAvailable: false,
+      }),
+    );
     // 다른 숙소, 검색 조건과 일치하지 않음
     await listingEntityRepository.save({
       hostId: testUser.id,
@@ -144,11 +153,23 @@ describe('ListingRepository (통합 테스트)', () => {
       // 스케줄이 올바르게 조인되고 필터링되었는지 확인하기 위한 추가 검증
       expect(result[0].schedules).toBeInstanceOf(Array);
       expect(result[0].schedules.length).toBe(3); // 날짜 범위 내의 예약 가능한 스케줄만 포함되어야 한다
-      expect(result[0].schedules.some(s => s.date === '2023-01-01')).toBeTruthy();
-      expect(result[0].schedules.some(s => s.date === '2023-01-02')).toBeTruthy();
-      expect(result[0].schedules.some(s => s.date === '2023-01-03')).toBeTruthy();
-      expect(result[0].schedules.every(s => s.isAvailable === true)).toBeTruthy();
-      expect(result[0].schedules.every(s => s.price >= searchDto.minPrice && s.price <= searchDto.maxPrice)).toBeTruthy();
+      expect(
+        result[0].schedules.some((s) => s.date === '2023-01-01'),
+      ).toBeTruthy();
+      expect(
+        result[0].schedules.some((s) => s.date === '2023-01-02'),
+      ).toBeTruthy();
+      expect(
+        result[0].schedules.some((s) => s.date === '2023-01-03'),
+      ).toBeTruthy();
+      expect(
+        result[0].schedules.every((s) => s.isAvailable === true),
+      ).toBeTruthy();
+      expect(
+        result[0].schedules.every(
+          (s) => s.price >= searchDto.minPrice && s.price <= searchDto.maxPrice,
+        ),
+      ).toBeTruthy();
     });
 
     it('조건과 일치하는 숙소가 없으면 빈 배열을 반환해야 한다', async () => {
