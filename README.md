@@ -2,6 +2,9 @@
 - 부스트캠프 맴버십 4번째 미션.
 - Airbnb 만들어보기.
 
+<details>
+  <summary>WK 1</summary>
+
 # WK 1
 ## 이번주 목표.
 - React를 밑바닥부터 학습하자.
@@ -62,6 +65,12 @@ graph LR
 
     인원-GuestSelector -- Click --> GuestModal
 ```
+
+</details>
+
+
+<details>
+  <summary>WK 2</summary>
 
 # WK2
 ## 이번주 목표.
@@ -197,3 +206,5 @@ listingId, date, price, isAvailable
 id, listingId, userId, checkInDate, checkOutDate, guestCount, infantCount, totalPrice, status
 1 1 2 2025-10-24 2025-10-26 2 0 210000 PENDING
 ```
+
+</details>
