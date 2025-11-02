@@ -114,7 +114,7 @@ describe('ListingController (e2e)', () => {
   });
 
   describe('/listings/search (GET)', () => {
-    it('성공: 검색 조건에 완벽히 일치하는 숙소가 있을 때, 해당 숙소 정보를 반환한다', async () => {
+    it('검색 조건에 완벽히 일치하는 숙소가 있을 때, 해당 숙소 정보를 반환한다', async () => {
       // GIVEN: 모든 조건(날짜, 가격, 인원)을 만족하는 검색 DTO
       const searchDto: SearchListingsRequestDto = {
         fromDate: '2023-01-01',
@@ -138,7 +138,7 @@ describe('ListingController (e2e)', () => {
       expect(response.body[0].totalPrice).toBe(450); // 150 * 3
     });
 
-    it('성공: 검색 조건에 일치하는 숙소가 없을 때, 빈 배열을 반환한다', async () => {
+    it('검색 조건에 일치하는 숙소가 없을 때, 빈 배열을 반환한다', async () => {
       // GIVEN: 가격 조건에 맞지 않는 검색 DTO
       const searchDto: SearchListingsRequestDto = {
         fromDate: '2023-01-01',
@@ -159,7 +159,7 @@ describe('ListingController (e2e)', () => {
       expect(response.body).toEqual([]);
     });
 
-    it('성공: 검색 기간 중 예약 불가능한 날짜가 포함되어 있을 때, 빈 배열을 반환한다', async () => {
+    it('검색 기간 중 예약 불가능한 날짜가 포함되어 있을 때, 빈 배열을 반환한다', async () => {
       // GIVEN: 예약 불가능한 날짜(1월 4일)를 포함하는 검색 DTO
       const searchDto: SearchListingsRequestDto = {
         fromDate: '2023-01-01',

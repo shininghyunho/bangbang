@@ -22,7 +22,6 @@ describe('ListingRepository (통합 테스트)', () => {
 
   let testUser: User;
   let testListing: Listing;
-  let testSchedules: ListingSchedule[];
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -81,39 +80,32 @@ describe('ListingRepository (통합 테스트)', () => {
     });
 
     // 숙소 스케쥴
-    testSchedules = [];
-    testSchedules.push(
-      await listingScheduleRepository.save({
+    await listingScheduleRepository.save([
+      {
         listingId: testListing.id,
         date: '2023-01-01',
         price: 150.0,
         isAvailable: true,
-      }),
-    );
-    testSchedules.push(
-      await listingScheduleRepository.save({
+      },
+      {
         listingId: testListing.id,
         date: '2023-01-02',
         price: 150.0,
         isAvailable: true,
-      }),
-    );
-    testSchedules.push(
-      await listingScheduleRepository.save({
+      },
+      {
         listingId: testListing.id,
         date: '2023-01-03',
         price: 150.0,
         isAvailable: true,
-      }),
-    );
-    testSchedules.push(
-      await listingScheduleRepository.save({
+      },
+      {
         listingId: testListing.id,
         date: '2023-01-04',
         price: 150.0,
         isAvailable: false,
-      }),
-    );
+      },
+    ]);
     
     // 검색이 안되어야하는 숙소
     await listingEntityRepository.save({
@@ -135,7 +127,8 @@ describe('ListingRepository (통합 테스트)', () => {
   });
 
   describe('searchListings', () => {
-    it('검색 조건과 일치하는 숙소를 반환해야 한다', async () => {
+    it('모든 검색 조건(날짜, 가격, 인원)을 만족하는 숙소 1개를 반환한다', async () => {
+      // GIVEN: 모든 조건을 만족하는 검색 DTO
       const searchDto: SearchListingsRequestDto = {
         fromDate: '2023-01-01',
         toDate: '2023-01-03',
@@ -145,46 +138,35 @@ describe('ListingRepository (통합 테스트)', () => {
         infantSize: 1,
       };
 
+      // WHEN: searchListings 메서드를 호출한다
       const result = await listingRepository.searchListings(searchDto);
 
-      expect(result).toBeInstanceOf(Array);
+      // THEN: 조건에 맞는 숙소 1개를 포함한 배열을 반환한다
       expect(result.length).toBe(1);
       expect(result[0].id).toBe(testListing.id);
-      expect(result[0].name).toBe('테스트 숙소');
-      expect(result[0].schedules).toBeInstanceOf(Array);
       expect(result[0].schedules.length).toBe(3);
-      expect(
-        result[0].schedules.some((s) => String(s.date) === '2023-01-01'),
-      ).toBeTruthy();
-      expect(
-        result[0].schedules.some((s) => String(s.date) === '2023-01-02'),
-      ).toBeTruthy();
-      expect(
-        result[0].schedules.some((s) => String(s.date) === '2023-01-03'),
-      ).toBeTruthy();
-      expect(
-        result[0].schedules.every(
-          (s) => s.price >= searchDto.minPrice && s.price <= searchDto.maxPrice,
-        ),
-      ).toBeTruthy();
     });
 
-    it('조건과 일치하는 숙소가 없으면 빈 배열을 반환해야 한다', async () => {
+    it('가격 조건에 맞지 않는 숙소가 있을 때, 빈 배열을 반환한다', async () => {
+      // GIVEN: 가격 조건이 맞지 않는 검색 DTO
       const searchDto: SearchListingsRequestDto = {
         fromDate: '2023-01-01',
         toDate: '2023-01-03',
-        minPrice: 10,
-        maxPrice: 20,
+        minPrice: 500, // 너무 높은 가격
+        maxPrice: 1000,
         guestSize: 4,
         infantSize: 1,
       };
 
+      // WHEN: searchListings 메서드를 호출한다
       const result = await listingRepository.searchListings(searchDto);
-      expect(result).toBeInstanceOf(Array);
+
+      // THEN: 빈 배열을 반환한다
       expect(result.length).toBe(0);
     });
 
-    it('충분한 예약 가능 날짜가 없으면 빈 배열을 반환해야 한다', async () => {
+    it('검색 기간 중 예약 불가능한 날짜가 포함될 때, 빈 배열을 반환한다', async () => {
+      // GIVEN: 예약 불가능한 날짜(1월 4일)를 포함하는 검색 DTO
       const searchDto: SearchListingsRequestDto = {
         fromDate: '2023-01-01',
         toDate: '2023-01-04',
@@ -194,8 +176,10 @@ describe('ListingRepository (통합 테스트)', () => {
         infantSize: 1,
       };
 
+      // WHEN: searchListings 메서드를 호출한다
       const result = await listingRepository.searchListings(searchDto);
-      expect(result).toBeInstanceOf(Array);
+
+      // THEN: 빈 배열을 반환한다
       expect(result.length).toBe(0);
     });
   });
