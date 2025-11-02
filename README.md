@@ -38,6 +38,14 @@ docker-compose up dev_db --build
 docker-compose up test_backend --build 
 ```
 
+# 🤗 보여지는 결과물.
+## 숙소 검색.
+> 10년치 데이터(300만건 이상) 검색이 10ms 정도 걸립니다. (table 역정규화와 index 사용하여)
+
+![검색](./첨부파일/검색기능.gif)
+## Oauth 로그인.
+![oauth](./첨부파일/oauth예시.gif)
+
 # 🫡 주차별 목표와 구현 사항.
 > WK1, WK2, WK3를 1개씩 클릭해보세요!
 <details>
