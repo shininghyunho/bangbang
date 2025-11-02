@@ -208,3 +208,11 @@ id, listingId, userId, checkInDate, checkOutDate, guestCount, infantCount, total
 ```
 
 </details>
+
+# WK 3
+## ⛷️ 이번주 목표
+- 작은 모듈이라도 완성품을 만들자.
+- 지금까지 만든건 검색 기능이니 해당 기능에 대한 완성품을 만들자.
+- nest 철학에 맞게 API 를 재구성하고
+- 테스트 작업을 진행한뒤
+- 도커로 배포까지 해보자.
