@@ -19,7 +19,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:docker": "docker-compose run --build --rm test",
-    "test:docker:internal": "jest --config jest.docker.config.js"
+    "test:docker:internal": "jest --config jest.docker.config.js --runInBand"
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.1",
@@ -29,6 +29,8 @@
     "@nestjs/platform-express": "^11.1.8",
     "@nestjs/typeorm": "^11.0.0",
     "axios": "^1.13.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
     "express-session": "^1.18.2",
     "mysql2": "^3.15.3",
     "reflect-metadata": "^0.2.2",

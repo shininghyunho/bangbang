@@ -1,28 +1,28 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DataSource, Repository } from 'typeorm';
-import { ListingRepository } from '../../src/listings/repositories/listing.repository';
+import mysql2 from 'mysql2';
+import request from 'supertest';
+
 import { Listing } from '../../src/listings/entities/listing.entity';
 import { ListingSchedule } from '../../src/listings/entities/listing-schedule.entity';
 import { User } from '../../src/users/entities/user.entity';
 import { OauthAccount } from '../../src/auth/entities/oauth_account.entity';
 import { Provider } from '../../src/auth/entities/provider.entity';
+import { ListingModule } from '../../src/listings/listing.module';
 import { SearchListingsRequestDto } from '../../src/listings/dto/search-listings.request.dto';
-import * as mysql2 from 'mysql2';
 
-describe('ListingRepository (통합 테스트)', () => {
+describe('ListingController (e2e)', () => {
   let app: INestApplication;
-  let listingRepository: ListingRepository;
   let dataSource: DataSource;
   let userRepository: Repository<User>;
-  let listingEntityRepository: Repository<Listing>;
+  let listingRepository: Repository<Listing>;
   let listingScheduleRepository: Repository<ListingSchedule>;
 
   let testUser: User;
   let testListing: Listing;
-  let testSchedules: ListingSchedule[];
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -49,20 +49,20 @@ describe('ListingRepository (통합 테스트)', () => {
           }),
           inject: [ConfigService],
         }),
-        TypeOrmModule.forFeature([Listing, ListingSchedule, User, OauthAccount, Provider]),
+        ListingModule,
       ],
-      providers: [ListingRepository],
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({ transform: true }));
     await app.init();
 
     dataSource = moduleFixture.get<DataSource>(DataSource);
-    listingRepository = moduleFixture.get<ListingRepository>(ListingRepository);
     userRepository = dataSource.getRepository(User);
-    listingEntityRepository = dataSource.getRepository(Listing);
+    listingRepository = dataSource.getRepository(Listing);
     listingScheduleRepository = dataSource.getRepository(ListingSchedule);
 
+    // GIVEN: 테스트용 데이터베이스에 데이터가 존재한다.
     // 유저
     testUser = await userRepository.save({
       email: 'test@example.com',
@@ -71,7 +71,7 @@ describe('ListingRepository (통합 테스트)', () => {
     });
 
     // 숙소
-    testListing = await listingEntityRepository.save({
+    testListing = await listingRepository.save({
       hostId: testUser.id,
       name: '테스트 숙소',
       description: '아름다운 장소',
@@ -81,61 +81,41 @@ describe('ListingRepository (통합 테스트)', () => {
     });
 
     // 숙소 스케쥴
-    testSchedules = [];
-    testSchedules.push(
-      await listingScheduleRepository.save({
+    await listingScheduleRepository.save([
+      {
         listingId: testListing.id,
         date: '2023-01-01',
         price: 150.0,
         isAvailable: true,
-      }),
-    );
-    testSchedules.push(
-      await listingScheduleRepository.save({
+      },
+      {
         listingId: testListing.id,
         date: '2023-01-02',
         price: 150.0,
         isAvailable: true,
-      }),
-    );
-    testSchedules.push(
-      await listingScheduleRepository.save({
+      },
+      {
         listingId: testListing.id,
         date: '2023-01-03',
         price: 150.0,
         isAvailable: true,
-      }),
-    );
-    testSchedules.push(
-      await listingScheduleRepository.save({
+      },
+      {
         listingId: testListing.id,
         date: '2023-01-04',
         price: 150.0,
-        isAvailable: false,
-      }),
-    );
-    
-    // 검색이 안되어야하는 숙소
-    await listingEntityRepository.save({
-      hostId: testUser.id,
-      name: '다른 숙소',
-      description: '다른 장소',
-      guestCapacity: 2,
-      infantCapacity: 0,
-      address: '456 다른 거리',
-    });
+        isAvailable: false, // 예약 불가능한 날짜
+      },
+    ]);
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  it('ListingRepository가 정의되어야 한다', () => {
-    expect(listingRepository).toBeDefined();
-  });
-
-  describe('searchListings', () => {
-    it('검색 조건과 일치하는 숙소를 반환해야 한다', async () => {
+  describe('/listings/search (GET)', () => {
+    it('성공: 검색 조건에 완벽히 일치하는 숙소가 있을 때, 해당 숙소 정보를 반환한다', async () => {
+      // GIVEN: 모든 조건(날짜, 가격, 인원)을 만족하는 검색 DTO
       const searchDto: SearchListingsRequestDto = {
         fromDate: '2023-01-01',
         toDate: '2023-01-03',
@@ -145,46 +125,42 @@ describe('ListingRepository (통합 테스트)', () => {
         infantSize: 1,
       };
 
-      const result = await listingRepository.searchListings(searchDto);
+      // WHEN: /listings/search API를 호출한다
+      const response = await request(app.getHttpServer())
+        .get('/listings/search')
+        .query(searchDto);
 
-      expect(result).toBeInstanceOf(Array);
-      expect(result.length).toBe(1);
-      expect(result[0].id).toBe(testListing.id);
-      expect(result[0].name).toBe('테스트 숙소');
-      expect(result[0].schedules).toBeInstanceOf(Array);
-      expect(result[0].schedules.length).toBe(3);
-      expect(
-        result[0].schedules.some((s) => String(s.date) === '2023-01-01'),
-      ).toBeTruthy();
-      expect(
-        result[0].schedules.some((s) => String(s.date) === '2023-01-02'),
-      ).toBeTruthy();
-      expect(
-        result[0].schedules.some((s) => String(s.date) === '2023-01-03'),
-      ).toBeTruthy();
-      expect(
-        result[0].schedules.every(
-          (s) => s.price >= searchDto.minPrice && s.price <= searchDto.maxPrice,
-        ),
-      ).toBeTruthy();
+      // THEN: 200 OK 상태 코드와 함께, 조건에 맞는 숙소 1개를 반환한다
+      expect(response.status).toBe(200);
+      expect(response.body).toBeInstanceOf(Array);
+      expect(response.body.length).toBe(1);
+      expect(response.body[0].name).toBe(testListing.name);
+      expect(response.body[0].totalPrice).toBe(450); // 150 * 3
     });
 
-    it('조건과 일치하는 숙소가 없으면 빈 배열을 반환해야 한다', async () => {
+    it('성공: 검색 조건에 일치하는 숙소가 없을 때, 빈 배열을 반환한다', async () => {
+      // GIVEN: 가격 조건에 맞지 않는 검색 DTO
       const searchDto: SearchListingsRequestDto = {
         fromDate: '2023-01-01',
         toDate: '2023-01-03',
-        minPrice: 10,
-        maxPrice: 20,
+        minPrice: 500, // 너무 높은 가격
+        maxPrice: 1000,
         guestSize: 4,
         infantSize: 1,
       };
 
-      const result = await listingRepository.searchListings(searchDto);
-      expect(result).toBeInstanceOf(Array);
-      expect(result.length).toBe(0);
+      // WHEN: /listings/search API를 호출한다
+      const response = await request(app.getHttpServer())
+        .get('/listings/search')
+        .query(searchDto);
+
+      // THEN: 200 OK 상태 코드와 함께, 빈 배열을 반환한다
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual([]);
     });
 
-    it('충분한 예약 가능 날짜가 없으면 빈 배열을 반환해야 한다', async () => {
+    it('성공: 검색 기간 중 예약 불가능한 날짜가 포함되어 있을 때, 빈 배열을 반환한다', async () => {
+      // GIVEN: 예약 불가능한 날짜(1월 4일)를 포함하는 검색 DTO
       const searchDto: SearchListingsRequestDto = {
         fromDate: '2023-01-01',
         toDate: '2023-01-04',
@@ -194,9 +170,14 @@ describe('ListingRepository (통합 테스트)', () => {
         infantSize: 1,
       };
 
-      const result = await listingRepository.searchListings(searchDto);
-      expect(result).toBeInstanceOf(Array);
-      expect(result.length).toBe(0);
+      // WHEN: /listings/search API를 호출한다
+      const response = await request(app.getHttpServer())
+        .get('/listings/search')
+        .query(searchDto);
+
+      // THEN: 200 OK 상태 코드와 함께, 빈 배열을 반환한다
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual([]);
     });
   });
 });
