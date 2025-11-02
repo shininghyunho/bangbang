@@ -261,4 +261,26 @@ id, listingId, userId, checkInDate, checkOutDate, guestCount, infantCount, total
 - AI 의견을 비판적으로 바라보고 딴지 걸어보기.
 - AI의 코드 책임져보기. (결국 내가 승인한거니까! 내가 AI를 부려먹는 책임자야.)
   
+## 주요 구현 사항.
+### 수백만건의 데이터 DB에 저장. (csv 파일 없이 db 자체 기능만으로)
+[시행착오를 기록한 노션 페이지](https://www.notion.so/chaegang/P4-20251026-10-365-298748edda9b8042815ce6aad4f8a03c)
+
+[참고 쿼리](./첨부파일/query/bulk-insert-test.sql)
+
+실제 300만건의 데이터를 삽입할때 30초가 소요되었습니다.
+![30초](./첨부파일/300만건30초.png)
+
+### Kakao Oauth 로그인.
+![로그인](./첨부파일/oauth예시.gif)
+### 도커 컴포즈
+![도커컴포즈](./첨부파일/도커컴포즈.png)
+#### 백엔드 서버
+- prod_backend : 배포용 서버.(with prod_db)
+- dev_backend : 개발 서버.(with dev_dv)
+- test_backend : 테스트 서버(테스트 코드를 돌리기 용).(with test_db)
+#### DB
+- prod_db : 배포용 DB.(with prod_db_volume. 수백만개의 seed 데이터.)
+- dev_db : 개발용 DB.(with dev_db_volume. 수백만개의 seed 데이터.)
+- test_db : 테스트 DB.(no volume. 매번 초기화.)
+
 </details>
