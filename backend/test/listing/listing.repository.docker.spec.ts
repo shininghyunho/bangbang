@@ -18,7 +18,6 @@ describe('ListingRepository (통합 테스트)', () => {
   let listingEntityRepository: Repository<Listing>;
   let listingScheduleRepository: Repository<ListingSchedule>;
 
-  // 테스트 데이터
   let testUser: User;
   let testListing: Listing;
   let testSchedules: ListingSchedule[];
@@ -28,7 +27,7 @@ describe('ListingRepository (통합 테스트)', () => {
       imports: [
         ConfigModule.forRoot({
           isGlobal: true,
-          envFilePath: '.env.test', // 필요한 경우 테스트용 .env 파일을 사용하거나 docker-compose 환경 변수를 사용
+          envFilePath: '.env.test',
         }),
         TypeOrmModule.forRootAsync({
           imports: [ConfigModule],
@@ -43,7 +42,7 @@ describe('ListingRepository (통합 테스트)', () => {
             database: configService.getOrThrow<string>('DATABASE_NAME'),
             entities: [Listing, ListingSchedule, User],
             synchronize: true,
-            dropSchema: true, // 테스트 시 스키마를 매번 새로 생성
+            dropSchema: true,
             logging: false,
           }),
           inject: [ConfigService],
@@ -57,19 +56,19 @@ describe('ListingRepository (통합 테스트)', () => {
     await app.init();
 
     dataSource = moduleFixture.get<DataSource>(DataSource);
-    // DataSource에서 ListingRepository 가져오기
     listingRepository = moduleFixture.get<ListingRepository>(ListingRepository);
     userRepository = dataSource.getRepository(User);
     listingEntityRepository = dataSource.getRepository(Listing);
     listingScheduleRepository = dataSource.getRepository(ListingSchedule);
 
-    // 테스트 데이터 삽입
+    // 유저
     testUser = await userRepository.save({
       email: 'test@example.com',
       password: 'password',
       name: '테스트 사용자',
     });
 
+    // 숙소
     testListing = await listingEntityRepository.save({
       hostId: testUser.id,
       name: '테스트 숙소',
@@ -79,8 +78,8 @@ describe('ListingRepository (통합 테스트)', () => {
       address: '123 테스트 거리',
     });
 
+    // 숙소 스케쥴
     testSchedules = [];
-    // 2023-01-01, 2023-01-02, 2023-01-03 예약 가능
     testSchedules.push(
       await listingScheduleRepository.save({
         listingId: testListing.id,
@@ -105,7 +104,6 @@ describe('ListingRepository (통합 테스트)', () => {
         isAvailable: true,
       }),
     );
-    // 2023-01-04 예약 불가능
     testSchedules.push(
       await listingScheduleRepository.save({
         listingId: testListing.id,
@@ -114,7 +112,8 @@ describe('ListingRepository (통합 테스트)', () => {
         isAvailable: false,
       }),
     );
-    // 다른 숙소, 검색 조건과 일치하지 않음
+    
+    // 검색이 안되어야하는 숙소
     await listingEntityRepository.save({
       hostId: testUser.id,
       name: '다른 숙소',
@@ -150,9 +149,8 @@ describe('ListingRepository (통합 테스트)', () => {
       expect(result.length).toBe(1);
       expect(result[0].id).toBe(testListing.id);
       expect(result[0].name).toBe('테스트 숙소');
-      // 스케줄이 올바르게 조인되고 필터링되었는지 확인하기 위한 추가 검증
       expect(result[0].schedules).toBeInstanceOf(Array);
-      expect(result[0].schedules.length).toBe(3); // 날짜 범위 내의 예약 가능한 스케줄만 포함되어야 한다
+      expect(result[0].schedules.length).toBe(3);
       expect(
         result[0].schedules.some((s) => (s.date as Date).toISOString().startsWith('2023-01-01')),
       ).toBeTruthy();
@@ -177,7 +175,7 @@ describe('ListingRepository (통합 테스트)', () => {
         fromDate: '2023-01-01',
         toDate: '2023-01-03',
         minPrice: 10,
-        maxPrice: 20, // 일치하지 않는 가격 범위
+        maxPrice: 20,
         guestSize: 4,
         infantSize: 1,
       };
@@ -190,7 +188,7 @@ describe('ListingRepository (통합 테스트)', () => {
     it('충분한 예약 가능 날짜가 없으면 빈 배열을 반환해야 한다', async () => {
       const searchDto: SearchListingsRequestDto = {
         fromDate: '2023-01-01',
-        toDate: '2023-01-04', // 예약 불가능한 날짜를 포함하는 범위
+        toDate: '2023-01-04',
         minPrice: 100,
         maxPrice: 200,
         guestSize: 4,
