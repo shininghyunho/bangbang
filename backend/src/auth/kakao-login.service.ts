@@ -40,9 +40,13 @@ export class KakaoLoginService {
   ) {}
 
   async getKakaoToken(code: string): Promise<KakaoTokenResponse> {
-    const KAKAO_REST_API_KEY = this.configService.getOrThrow<string>('KAKAO_REST_API_KEY');
-    const KAKAO_CLIENT_SECRET = this.configService.getOrThrow<string>('KAKAO_CLIENT_SECRET');
-    const KAKAO_REDIRECT_URI = this.configService.getOrThrow<string>('KAKAO_REDIRECT_URI');
+    const KAKAO_REST_API_KEY =
+      this.configService.getOrThrow<string>('KAKAO_REST_API_KEY');
+    const KAKAO_CLIENT_SECRET = this.configService.getOrThrow<string>(
+      'KAKAO_CLIENT_SECRET',
+    );
+    const KAKAO_REDIRECT_URI =
+      this.configService.getOrThrow<string>('KAKAO_REDIRECT_URI');
 
     const tokenUrl = 'https://kauth.kakao.com/oauth/token';
     const body = {
@@ -54,9 +58,15 @@ export class KakaoLoginService {
     };
 
     const response = await firstValueFrom(
-      this.httpService.post<KakaoTokenResponse>(tokenUrl, new URLSearchParams(body).toString(), {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
-      }),
+      this.httpService.post<KakaoTokenResponse>(
+        tokenUrl,
+        new URLSearchParams(body).toString(),
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+          },
+        },
+      ),
     );
     return response.data;
   }
@@ -65,7 +75,7 @@ export class KakaoLoginService {
     const userInfoUrl = 'https://kapi.kakao.com/v2/user/me';
 
     const response = await firstValueFrom(
-      this.httpService.get(userInfoUrl, {
+      this.httpService.get<KakaoUserInfo>(userInfoUrl, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },

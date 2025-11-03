@@ -8,6 +8,7 @@ import { User } from './users/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { OauthAccount } from './auth/entities/oauth_account.entity';
 import { Provider } from './auth/entities/provider.entity';
+import * as mysql2 from 'mysql2';
 
 @Module({
   imports: [
@@ -18,15 +19,15 @@ import { Provider } from './auth/entities/provider.entity';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         type: 'mysql',
-        driver: require('mysql2'),
+        driver: mysql2,
         connectorPackage: 'mysql2',
         host: configService.get<string>('DATABASE_HOST', 'localhost'),
         port: configService.get<number>('DATABASE_PORT', 3308),
-        username: configService.get<string>('DATABASE_USER', 'test_user'),
+        username: configService.get<string>('DATABASE_USER', 'dev_user'),
         password: configService.get<string>('DATABASE_PASSWORD', '1234'),
-        database: configService.get<string>('DATABASE_NAME', 'test_db'),
+        database: configService.get<string>('DATABASE_NAME', 'dev_db'),
         entities: [Listing, ListingSchedule, User, OauthAccount, Provider],
-        synchronize:false,
+        synchronize: false,
       }),
       inject: [ConfigService],
     }),

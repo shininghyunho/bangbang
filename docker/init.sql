@@ -1,5 +1,3 @@
------------------------------------------------------------------------------------------------- DDL
-
 CREATE TABLE `users` (
     `id` bigint NOT NULL AUTO_INCREMENT,
     `email` varchar(50) NOT NULL,
@@ -18,6 +16,7 @@ CREATE TABLE `listings` (
     `infantCapacity` int NOT NULL DEFAULT '0',
     `address` varchar(100) DEFAULT NULL,
     PRIMARY KEY (`id`),
+    KEY `fk_listings_hostId` (`hostId`),
     CONSTRAINT `fk_listings_hostId` FOREIGN KEY (`hostId`) REFERENCES `users` (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
@@ -30,6 +29,7 @@ CREATE TABLE `listing_schedule` (
     `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
+    KEY `fk_schedule_listingId` (`listingId`),
     KEY `idx_search_01` (`date`, `price`),
     CONSTRAINT `fk_schedule_listingId` FOREIGN KEY (`listingId`) REFERENCES `listings` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
@@ -52,15 +52,9 @@ CREATE TABLE `oauth_accounts` (
     CONSTRAINT `fk_oauth_provider_id` FOREIGN KEY (`provider_id`) REFERENCES `providers` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+SET cte_max_recursion_depth = 1000000;
 
------------------------------------------------------------------------------------------------- insert
-
--- 재귀 상한선 1000만
-SET cte_max_recursion_depth = 10000;
-
--------------------------------------------- users
 SET @user_cnt = 1000;
--- users
 INSERT INTO users (email, password, name)
 WITH RECURSIVE cte(n) AS (
     SELECT 1
@@ -75,7 +69,6 @@ SELECT
     CONCAT('hyunho:', n)
 FROM cte;
 
--------------------------------------------- listings
 
 SET @listing_cnt = 1000;
 
@@ -89,26 +82,23 @@ WITH RECURSIVE cte(n) AS (
 )
 SELECT
     n,
-    CONCAT('현호', n,'의_숙소') AS name,
-    CONCAT('현호', n, '의_멋진_숙소입니다.') AS description,
+    CONCAT('hyunho', n,'th room') AS name,
+    CONCAT('this is hyunho ', n, 'th room!!! welcome!!') AS description,
     (n % 5) + 1 AS guestCapacity,
     (n % 3) AS infantCapacity,
-    CONCAT('코드스쿼드 ', (n%10) ,'번지') AS address
+    CONCAT('codesquad ', (n%10) ,' street') AS address
 FROM cte;
 
--------------------------------------------- listing schedule
-SET @start_date = '2025-01-01';
+SET @start_date = '2015-01-01';
 SET @end_date = '2025-12-31';
 
 INSERT INTO listing_schedule (listingId, date, price, isAvailable, createdAt, updatedAt)
 WITH RECURSIVE
-  -- 1부터 @listing_cnt까지의 숙소 ID를 생성하는 CTE
   listing_ids(id) AS (
     SELECT 1
     UNION ALL
     SELECT id + 1 FROM listing_ids WHERE id < @listing_cnt
   ),
-  -- @start_date부터 @end_date까지 모든 날짜를 생성하는 CTE
   all_dates(dt) AS (
     SELECT CAST(@start_date AS DATE)
     UNION ALL
@@ -117,8 +107,8 @@ WITH RECURSIVE
 SELECT
   l.id AS listingId,
   d.dt AS date,
-  (50 + FLOOR(RAND() * 100)) * 1000 AS price, -- 5만 ~ 14만9천
-  IF(RAND() > 0.1, TRUE, FALSE) AS isAvailable, -- 예약 확률 10%
+  (50 + FLOOR(RAND() * 100)) * 1000 AS price,
+  IF(RAND() > 0.1, TRUE, FALSE) AS isAvailable,
   NOW() AS createdAt,
   NOW() AS updatedAt
 FROM
@@ -126,14 +116,5 @@ FROM
 CROSS JOIN
   all_dates d;
 
-
--------------------------------------------- provider
-select * from providers;
-
 insert into providers (name)
 values('kakao');
-
--------------------------------------------- oauth_accounts
-
-
-select * from oauth_accounts;

@@ -21,14 +21,26 @@ export class OauthAccount {
   @Column({ type: 'int', name: 'provider_id', nullable: false })
   providerId: number;
 
-  @Column({ type: 'varchar', length: 255, name: 'provider_user_id', nullable: false })
+  @Column({
+    type: 'varchar',
+    length: 255,
+    name: 'provider_user_id',
+    nullable: false,
+  })
   providerUserId: string;
 
-  @ManyToOne(() => User, (user) => user.oauthAccounts, { onDelete: 'CASCADE', nullable: false })
+  @ManyToOne(() => User, (user) => user.oauthAccounts, {
+    onDelete: 'CASCADE',
+    nullable: false,
+  })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => Provider, { onDelete: 'CASCADE', nullable: false, eager: true })
+  @ManyToOne(() => Provider, {
+    onDelete: 'CASCADE',
+    nullable: false,
+    eager: true,
+  })
   @JoinColumn({ name: 'provider_id' })
   provider: Provider;
 }

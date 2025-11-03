@@ -7,26 +7,28 @@ import { Listing } from './entities/listing.entity';
 const RESULT_LIMIT_SIZE = 20;
 @Injectable()
 export class ListingService {
-  constructor(
-    private readonly listingRepository: ListingRepository,
-  ) {}
+  constructor(private readonly listingRepository: ListingRepository) {}
 
-  async searchListings(requestDto: SearchListingsRequestDto): Promise<ListingResponseDto[]> {
+  async searchListings(
+    requestDto: SearchListingsRequestDto,
+  ): Promise<ListingResponseDto[]> {
     const listings = await this.listingRepository.searchListings(requestDto);
 
-    const results: ListingResponseDto[] = listings.map(l => {
-      // 함수형 문법으로 totalPrice를 구한다.  
-      const totalPrice = l.schedules.reduce((acc, s) => acc + Number(s.price), 0);
-        return {
-          name: l.name,
-          description: l.description,
-          address: l.address,
-          totalPrice: totalPrice,
-          guestCapacity: l.guestCapacity,
-          infantCapacity: l.infantCapacity,
-        };
-      }
-    );
+    const results: ListingResponseDto[] = listings.map((l) => {
+      // 함수형 문법으로 totalPrice를 구한다.
+      const totalPrice = l.schedules.reduce(
+        (acc, s) => acc + Number(s.price),
+        0,
+      );
+      return {
+        name: l.name,
+        description: l.description,
+        address: l.address,
+        totalPrice: totalPrice,
+        guestCapacity: l.guestCapacity,
+        infantCapacity: l.infantCapacity,
+      };
+    });
 
     // return 값은 오름차순 정렬후, RESULT_LIMIT_SIZE 이하로만 반환한다.
     return results
