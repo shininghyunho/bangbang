@@ -1,11 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Listing } from '../entities/listing.entity';
 import { SearchListingsRequestDto } from '../dto/search-listings.request.dto';
-import { ListingSchedule } from '../entities/listing-schedule.entity';
+import { ListingSearchResponseDto } from '../dto/listing-search.response.dto';
 
-const MS_PER_DAY = 1000 * 60 * 60 * 24; // Milliseconds in a day
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
 @Injectable()
 export class ListingRepository {
@@ -15,11 +15,9 @@ export class ListingRepository {
     private readonly dataSource: DataSource,
   ) {}
 
-  private readonly logger = new Logger(ListingRepository.name);
-
   async searchListings(
     searchDto: SearchListingsRequestDto,
-  ): Promise<Listing[]> {
+  ): Promise<ListingSearchResponseDto[]> {
     const { fromDate, toDate, minPrice, maxPrice, guestSize, infantSize } =
       searchDto;
 
@@ -29,54 +27,48 @@ export class ListingRepository {
     const diffTime = endUtcDate.getTime() - startUtcDate.getTime();
     const diffDays = diffTime / MS_PER_DAY + 1;
 
-    // 서브쿼리
-    const subQuery = this.dataSource
-      .createQueryBuilder(ListingSchedule, 'schedule_sub')
-      .select('schedule_sub.listingId')
-      .where('schedule_sub.date BETWEEN :fromDate AND :toDate', {
-        fromDate,
-        toDate,
-      })
-      .andWhere('schedule_sub.isAvailable = :isAvailable', {
-        isAvailable: true,
-      })
-      .andWhere('schedule_sub.price BETWEEN :minPrice AND :maxPrice', {
-        minPrice,
-        maxPrice,
-      })
-      .groupBy('schedule_sub.listingId')
-      .having('COUNT(schedule_sub.date) = :diffDays', { diffDays });
+    const rawQuery = `
+      SELECT 
+          l.id,
+          l.name, 
+          l.description, 
+          l.address, 
+          l.guestCapacity, 
+          l.infantCapacity,
+          SUM(ls.price) AS totalPrice
+      FROM listings AS l
+      INNER JOIN listing_schedule AS ls ON l.id = ls.listingId
+      WHERE ls.date BETWEEN ? AND ?
+        AND ls.isAvailable = 1
+        AND ls.price BETWEEN ? AND ?
+        AND l.guestCapacity >= ?
+        AND l.infantCapacity >= ?
+      GROUP BY l.id
+      HAVING COUNT(ls.date) = ?
+      ORDER BY totalPrice ASC, l.id
+      LIMIT 100;
+    `;
 
-    // 메인 쿼리
-    const query = this.repository
-      .createQueryBuilder('listing')
-      .innerJoinAndSelect('listing.schedules', 'schedule')
-      .where('listing.guestCapacity >= :guestSize', { guestSize })
-      .andWhere('listing.infantCapacity >= :infantSize', { infantSize })
-      .andWhere('listing.id IN (' + subQuery.getQuery() + ')')
-      .andWhere('schedule.date BETWEEN :fromDate AND :toDate', {
-        fromDate,
-        toDate,
-      })
-      .andWhere('schedule.isAvailable = :isAvailable', { isAvailable: true })
-      .andWhere('schedule.price BETWEEN :minPrice AND :maxPrice', {
-        minPrice,
-        maxPrice,
-      });
-
-    query.setParameters({
-      ...subQuery.getParameters(),
+    const parameters = [
+      fromDate,
+      toDate,
+      minPrice,
+      maxPrice,
       guestSize,
       infantSize,
-    });
+      diffDays,
+    ];
 
-    // 생성된 SQL과 파라미터 로깅
-    this.logger.debug(`Executing query: ${query.getSql()}`);
-    this.logger.debug(
-      `With parameters: ${JSON.stringify(query.getParameters())}`,
-    );
+    const results = await this.dataSource.query(rawQuery, parameters);
 
-    return query.getMany();
+    return results.map((row) => ({
+      name: row.name,
+      description: row.description,
+      address: row.address,
+      totalPrice: Number(row.totalPrice),
+      guestCapacity: row.guestCapacity,
+      infantCapacity: row.infantCapacity,
+    }));
   }
 
   async selectLimit10(): Promise<Listing[]> {

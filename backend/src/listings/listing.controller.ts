@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ListingService } from './listing.service';
 import { SearchListingsRequestDto } from './dto/search-listings.request.dto';
-import { ListingResponseDto } from './dto/listing.response.dto';
+import { ListingSearchResponseDto } from './dto/listing-search.response.dto';
 import { Listing } from './entities/listing.entity';
 
 @Controller('listings')
@@ -11,7 +11,7 @@ export class ListingController {
   @Get('search')
   async searchListings(
     @Query() searchDto: SearchListingsRequestDto,
-  ): Promise<ListingResponseDto[]> {
+  ): Promise<ListingSearchResponseDto[]> {
     return this.listingService.searchListings(searchDto);
   }
 
