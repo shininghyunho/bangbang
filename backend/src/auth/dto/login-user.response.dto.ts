@@ -1,5 +1,5 @@
 export class LoginUserResponseDto {
-  userId: bigint;
-  name: string;
+  userId!: bigint;
+  name!: string;
   imgUrl?: string;
 }
