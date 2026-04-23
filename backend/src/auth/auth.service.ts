@@ -40,7 +40,7 @@ export class AuthService {
       userId = user.id;
     } else {
       const savedUser = await this.userRepository.save(
-        this.getNewUser(kakaoUserInfo.properties.nickname),
+        this.getNewUser(kakaoUserInfo.properties.nickname, providerUserId),
       );
       await this.saveOauthAccount(provider.id, providerUserId, savedUser.id);
       userId = savedUser.id;
@@ -54,9 +54,11 @@ export class AuthService {
     };
   }
 
-  private getNewUser(name: string): User {
+  private getNewUser(name: string, providerUserId: string): User {
     const newUser = new User();
     newUser.name = name;
+    newUser.email = `kakao_${providerUserId}@temp.com`;
+    newUser.password = 'social_login_user_no_password';
     return newUser;
   }
 
