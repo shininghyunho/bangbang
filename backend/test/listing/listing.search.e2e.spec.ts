@@ -133,5 +133,15 @@ describe('숙소 검색 API E2E 테스트 (GET /listings/search)', () => {
         expect(item.infantCapacity).toBe(1);
       });
     });
+
+    describe('WHEN: 사용자가 검색 조건에 맞지 않는 가격 범위로 검색 API를 호출한다면', () => {
+      const searchUrl = '/listings/search?fromDate=2025-01-01&toDate=2025-01-04&minPrice=500000&maxPrice=1000000&guestSize=1&infantSize=0';
+
+      it('THEN: HTTP 응답 코드는 200(OK)이어야 하고, 빈 배열([])을 반환해야 한다', async () => {
+        const response = await request(app.getHttpServer()).get(searchUrl);
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual([]);
+      });
+    });
   });
 });

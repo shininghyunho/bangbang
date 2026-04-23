@@ -9,8 +9,8 @@ import { OauthAccount } from '../src/auth/entities/oauth_account.entity';
 import { Provider } from '../src/auth/entities/provider.entity';
 
 export class TestDbContainer {
-  private container: StartedMySqlContainer;
-  private dataSource: DataSource;
+  private container!: StartedMySqlContainer;
+  private dataSource!: DataSource;
 
   async start(): Promise<DataSource> {
     // 1. MySQL 8.0 컨테이너 실행
