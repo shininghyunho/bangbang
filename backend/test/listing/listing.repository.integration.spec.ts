@@ -57,7 +57,7 @@ describe('숙소 검색 Repository 통합 테스트 (Optimized Query)', () => {
         infantCapacity: 1,
         address: '서울',
       });
-      const schedulesA = [];
+      const schedulesA: any[] = [];
       for (let i = 1; i <= diffDays; i++) {
         schedulesA.push({
           listingId: listingA.id,
@@ -77,7 +77,7 @@ describe('숙소 검색 Repository 통합 테스트 (Optimized Query)', () => {
         infantCapacity: 1,
         address: '부산',
       });
-      const schedulesB = [];
+      const schedulesB: any[] = [];
       for (let i = 1; i <= diffDays; i++) {
         schedulesB.push({
           listingId: listingB.id,
@@ -97,7 +97,7 @@ describe('숙소 검색 Repository 통합 테스트 (Optimized Query)', () => {
         infantCapacity: 1,
         address: '인천',
       });
-      const schedulesC = [];
+      const schedulesC: any[] = [];
       for (let i = 1; i <= diffDays; i++) {
         schedulesC.push({
           listingId: listingC.id,
@@ -141,6 +141,39 @@ describe('숙소 검색 Repository 통합 테스트 (Optimized Query)', () => {
         const item = results[0];
         expect(item.guestCapacity).toBe(2);
         expect(item.infantCapacity).toBe(1);
+      });
+    });
+
+    describe('WHEN: 사용자가 등록된 숙소의 가격 범위를 완전히 벗어난 조건으로 검색한다면', () => {
+      const searchDto: SearchListingsRequestDto = {
+        fromDate: '2025-01-01',
+        toDate: '2025-01-04',
+        minPrice: 1000000, // 매우 높은 가격
+        maxPrice: 2000000,
+        guestSize: 1,
+        infantSize: 0,
+      };
+
+      it('THEN: 검색 결과는 빈 배열([])이어야 한다', async () => {
+        const results = await repository.searchListings(searchDto);
+        expect(results).toHaveLength(0);
+      });
+    });
+
+    describe('WHEN: 사용자가 일부 일정이 예약 불가능한 숙소(숙소 C)가 포함된 기간으로 검색한다면', () => {
+      const searchDto: SearchListingsRequestDto = {
+        fromDate: '2025-01-01',
+        toDate: '2025-01-04',
+        minPrice: 0,
+        maxPrice: 100000,
+        guestSize: 1,
+        infantSize: 0,
+      };
+
+      it('THEN: 예약 불가능한 일정이 포함된 숙소는 결과에서 제외되어야 한다', async () => {
+        const results = await repository.searchListings(searchDto);
+        const listingC = results.find((r) => r.name === '숙소 C');
+        expect(listingC).toBeUndefined();
       });
     });
   });
