@@ -13,13 +13,13 @@ import { Provider } from './provider.entity';
 @Unique('uq_provider_providerUserId', ['providerId', 'providerUserId'])
 export class OauthAccount {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
-  id: bigint;
+  id!: bigint;
 
   @Column({ type: 'bigint', name: 'user_id', nullable: false })
-  userId: bigint;
+  userId!: bigint;
 
   @Column({ type: 'int', name: 'provider_id', nullable: false })
-  providerId: number;
+  providerId!: number;
 
   @Column({
     type: 'varchar',
@@ -27,14 +27,14 @@ export class OauthAccount {
     name: 'provider_user_id',
     nullable: false,
   })
-  providerUserId: string;
+  providerUserId!: string;
 
   @ManyToOne(() => User, (user) => user.oauthAccounts, {
     onDelete: 'CASCADE',
     nullable: false,
   })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user!: User;
 
   @ManyToOne(() => Provider, {
     onDelete: 'CASCADE',
@@ -42,5 +42,5 @@ export class OauthAccount {
     eager: true,
   })
   @JoinColumn({ name: 'provider_id' })
-  provider: Provider;
+  provider!: Provider;
 }

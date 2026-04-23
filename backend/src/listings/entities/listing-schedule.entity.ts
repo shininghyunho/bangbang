@@ -12,33 +12,33 @@ import {
 import { Listing } from './listing.entity';
 
 @Entity('listing_schedule')
-@Index('idx_search_01', ['date', 'price'])
+@Index('idx_covering_search', ['isAvailable', 'date', 'price', 'listingId'])
 export class ListingSchedule {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
-  id: bigint;
+  id!: bigint;
 
   @Index('fk_schedule_listingId')
   @Column({ type: 'bigint', name: 'listingId' })
-  listingId: bigint;
+  listingId!: bigint;
 
   @Column({ type: 'date', nullable: false })
-  date: Date;
+  date!: Date;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
-  price: number;
+  price!: number;
 
   @Column({ type: 'tinyint', width: 1, default: true, nullable: false })
-  isAvailable: boolean;
+  isAvailable!: boolean;
 
   @CreateDateColumn({ type: 'datetime' })
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn({ type: 'datetime' })
-  updatedAt: Date;
+  updatedAt!: Date;
 
   @ManyToOne(() => Listing, (listing) => listing.schedules, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'listingId' })
-  listing: Listing;
+  listing!: Listing;
 }

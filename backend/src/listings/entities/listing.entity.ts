@@ -14,31 +14,31 @@ import { ListingSchedule } from './listing-schedule.entity';
 @Entity('listings')
 export class Listing {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
-  id: bigint;
+  id!: bigint;
 
   @Index('fk_listings_hostId')
   @Column({ type: 'bigint', nullable: true })
-  hostId: bigint;
+  hostId!: bigint;
 
   @ManyToOne(() => User, (user) => user.listings)
   @JoinColumn({ name: 'hostId' })
-  host: User;
+  host!: User;
 
   @Column({ type: 'varchar', length: 50, nullable: false })
-  name: string;
+  name!: string;
 
   @Column({ type: 'text', nullable: true })
-  description: string;
+  description!: string;
 
   @Column({ type: 'int', default: 1, nullable: false })
-  guestCapacity: number;
+  guestCapacity!: number;
 
   @Column({ type: 'int', default: 0, nullable: false })
-  infantCapacity: number;
+  infantCapacity!: number;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
-  address: string;
+  address!: string;
 
   @OneToMany(() => ListingSchedule, (schedule) => schedule.listing)
-  schedules: ListingSchedule[];
+  schedules!: ListingSchedule[];
 }

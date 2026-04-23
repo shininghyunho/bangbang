@@ -30,7 +30,7 @@ CREATE TABLE `listing_schedule` (
     `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `fk_schedule_listingId` (`listingId`),
-    KEY `idx_search_01` (`date`, `price`),
+    KEY `idx_covering_search` (`isAvailable`, `date`, `price`, `listingId`),
     CONSTRAINT `fk_schedule_listingId` FOREIGN KEY (`listingId`) REFERENCES `listings` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 

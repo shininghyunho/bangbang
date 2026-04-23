@@ -1,4 +1,4 @@
-export class ListingResponseDto {
+export class ListingSearchResponseDto {
   name!: string;
   description!: string;
   address!: string;
