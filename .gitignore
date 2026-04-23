@@ -25,3 +25,8 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# Gemini CLI
+*.skill
+.gemini/
+!.gemini/skills/
