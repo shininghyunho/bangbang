@@ -39,20 +39,6 @@ services:
       retries: 10
     command: --sql-mode=
 
-  test_db:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: 1234
-      MYSQL_DATABASE: test_db
-      MYSQL_USER: test_user
-      MYSQL_PASSWORD: 1234
-    ports:
-      - "3310:3306"
-    healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
-    command: --sql-mode=
 
   dev_backend:
     build:
@@ -86,20 +72,6 @@ services:
       prod_db:
         condition: service_healthy
 
-  test_backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    environment:
-      DATABASE_HOST: test_db
-      DATABASE_PORT: 3306
-      DATABASE_USER: test_user
-      DATABASE_PASSWORD: 1234
-      DATABASE_NAME: test_db
-    depends_on:
-      test_db:
-        condition: service_healthy
-    command: ["npm", "run", "test:docker:internal"]
 
 volumes:
   dev-db-volume:
