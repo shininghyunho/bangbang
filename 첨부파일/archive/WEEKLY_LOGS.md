@@ -42,9 +42,9 @@ docker-compose up test_backend --build
 ## 숙소 검색.
 > 10년치 데이터(300만건 이상) 검색이 10ms 정도 걸립니다. (table 역정규화와 index 사용하여)
 
-![검색](./첨부파일/검색기능.gif)
+![검색](..//검색기능.gif)
 ## Oauth 로그인.
-![oauth](./첨부파일/oauth예시.gif)
+![oauth](..//oauth예시.gif)
 
 # 🫡 주차별 목표와 구현 사항.
 > WK1, WK2, WK3를 1개씩 클릭해보세요!
@@ -84,7 +84,7 @@ docker-compose up test_backend --build
 - 모달창 내부를 눌렀을때 모달창이 닫히지 않음을 확인한다.
 - 유아는 성인이 필수인 조건이 만족되는지 확인해본다.
 - 성인, 어린이, 유아 +,- 버튼을 눌러보며 합계 로직이 제대로 동작하는지 확인한다.
-![시뮬](./첨부파일/모달창시뮬.gif)
+![시뮬](..//모달창시뮬.gif)
 
 ## 컴포넌트 구조.
 ```mermaid
@@ -163,7 +163,7 @@ graph LR
 
 ## 구현한 내용.(서치바)
 - 실제 fetch는 못하고 컴포넌트만 구성.
-![서치바](./첨부파일/WK2서치바.gif)
+![서치바](..//WK2서치바.gif)
 
 ## 컴포넌트 구조.
 ```mermaid
@@ -186,7 +186,7 @@ graph TD
     GuestModal --> GuestCategory_Infant[GuestCategory_유아];
 ```
 
-## [물리적 DB 구조(DDL)](./첨부파일/DDL.md)
+## [물리적 DB 구조(DDL)](..//DDL.md)
 
 ## ERD
 ```mermaid
@@ -311,15 +311,15 @@ id, listingId, userId, checkInDate, checkOutDate, guestCount, infantCount, total
 ### 수백만건의 데이터 DB에 저장. (csv 파일 없이 db 자체 기능만으로)
 [시행착오를 기록한 노션 페이지](https://www.notion.so/chaegang/P4-20251026-10-365-298748edda9b8042815ce6aad4f8a03c)
 
-[참고 쿼리](./첨부파일/query/bulk-insert-test.sql)
+[참고 쿼리](..//query/bulk-insert-test.sql)
 
 실제 300만건의 데이터를 삽입할때 30초가 소요되었습니다.
-![30초](./첨부파일/300만건30초.png)
+![30초](../300만건30초.png)
 
 ### Kakao Oauth 로그인.
-![로그인](./첨부파일/oauth예시.gif)
+![로그인](../oauth예시.gif)
 ### 도커 컴포즈
-![도커컴포즈](./첨부파일/도커컴포즈.png)
+![도커컴포즈](../도커컴포즈.png)
 #### 백엔드 서버
 - prod_backend : 배포용 서버.(with prod_db)
 - dev_backend : 개발 서버.(with dev_dv)
