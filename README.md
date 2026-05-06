@@ -5,9 +5,9 @@
 
 ## 프로젝트 목표
 
-"실제 Airbnb라면 데이터가 얼마나 될까?"라는 질문에서 출발했습니다.
-1000개의 숙소에 10년 치 예약 일정을 생성하면 약 300만 건의 데이터가 만들어집니다.
-이 대용량 데이터 환경 속에서, MySQL 단일 환경만으로 검색 기능을 구현하는 것이 핵심 목표였습니다.
+핵심 목표는 MySQL을 활용한 숙소 검색 기능 구현이었습니다.
+실제 서비스에 가까운 환경을 만들기 위해 1000개의 숙소에 10년 치 예약 일정을 생성했고, 그 결과 약 300만 건의 데이터가 만들어졌습니다.
+이 환경에서 날짜, 가격, 가용성 조건을 조합한 검색 쿼리를 얼마나 효율적으로 만들 수 있는지를 고민했습니다.
 
 ## 기술 스택
 
@@ -19,16 +19,17 @@
 | Infra | Docker, Docker Compose, Testcontainers |
 | Test | Jest, Supertest, Testcontainers |
 
-## 담당 영역 및 핵심 고민
+---
 
-저는 이 프로젝트에서 다음 세 가지를 직접 설계하고 구현했습니다.
+## 핵심 고민
+
+> 프로젝트를 진행하며 겪었던 3가지 핵심 고민 사항입니다.
 
 ### 1. 대용량 데이터 검색 (9,000ms → 5ms)
 
 300만 건의 `listing_schedule` 테이블에서 날짜, 가격, 가용성 조건을 조합한 검색 쿼리가 초기에 9,000ms 이상 소요되었습니다.
-이를 해결하기 위해 8가지 인덱스 후보군(C0~C7)을 구성하고, 각각에 대해 Read 속도, Write 속도, 실행 계획(EXPLAIN), 스캔 행수를 실험적으로 측정한 뒤 최종 커버링 인덱스를 도출했습니다.
 
-특히 인덱스 컬럼 순서를 결정할 때, 일반적으로 알려진 "카디널리티가 높은 컬럼을 앞에 두라"는 규칙이 항상 맞는 것은 아니었습니다. 카디널리티가 2밖에 안 되는 `isAvailable` 컬럼이라도 등치 조건(`=`)으로 사용되면 범위 조건(`BETWEEN`)보다 선두에 위치해야 인덱스를 더 효율적으로 탈 수 있다는 것을, 직접 실행 계획을 비교하며 확인했습니다.
+"어떤 인덱스를 써야 하는가"가 핵심 고민이었습니다. 검색에 사용되는 컬럼들을 무작정 추가하는 대신, 8가지 인덱스 후보군(C0~C7)을 직접 구성하고 각각의 Read 속도, Write 속도, 실행 계획을 실험으로 비교했습니다. 그 결과 커버링 인덱스(Covering Index)를 최종 선택했고, 검색 성능뿐 아니라 Insert 성능과 메모리 사용량에 미치는 영향까지 함께 검증하여 Trade-off를 확인했습니다.
 
 - 상세 의사결정 과정: [ADR-003 복합 인덱스 설계](./첨부파일/adr/003-covering-index-strategy.md)
 - 검색 쿼리 분리 전략: [ADR-002 검색 쿼리 설계](./첨부파일/adr/002-search-query-separation.md)
@@ -84,6 +85,8 @@ graph LR
 
 - 상세 의사결정 과정: [ADR-004 인프라 전략](./첨부파일/adr/004-devops-docker-strategy.md)
 
+---
+
 ## 실행 방법
 
 ### 백엔드 서버 기동
@@ -113,10 +116,84 @@ npm run dev
 # localhost:5173 접속
 ```
 
-## 실행 화면
-
-*(검색 기능 및 테스트 실행 GIF를 직접 첨부할 예정입니다)*
-
 ---
 
-*주차별 학습 기록은 [WEEKLY_LOGS](./docs/archive/WEEKLY_LOGS.md)에 보관되어 있습니다.*
+## 참고 자료
+
+### 숙소 검색 기능
+> 검색 페이지에서 체크인/체크아웃 날짜, 최소/최대 가격, 인원수(성인,청소년,유아)를 입력하여 검색해볼 수 있습니다. 10년치 데이터(300만건 이상) 검색이 10ms 이내로 걸립니다.
+
+![검색](./첨부파일/검색기능.gif)
+
+### 검색 쿼리 인덱스 실행 계획
+
+> 실행 계획 검증에 사용한 검색 쿼리와 EXPLAIN 결과입니다.
+
+#### 검색 쿼리
+
+```sql
+SELECT 
+    l.id,
+    l.name, 
+    l.description, 
+    l.address, 
+    l.guestCapacity, 
+    l.infantCapacity,
+    SUM(ls.price) AS totalPrice
+FROM listings AS l
+INNER JOIN listing_schedule AS ls ON l.id = ls.listingId
+WHERE ls.date BETWEEN ? AND ?
+  AND ls.isAvailable = 1
+  AND ls.price BETWEEN ? AND ?
+  AND l.guestCapacity >= ?
+  AND l.infantCapacity >= ?
+GROUP BY l.id
+HAVING COUNT(ls.date) = ?
+ORDER BY totalPrice ASC, l.id
+LIMIT 100;
+```
+
+#### EXPLAIN 결과
+
+| id | select_type | table | type | possible_keys | key | key_len | ref | rows | filtered | Extra |
+|:--:|:--:|:--:|:--:|:--|:--|:--:|:--|:--:|:--:|:--|
+| 1 | SIMPLE | ls | range | idx_covering_search | idx_covering_search | 9 | | 2017 | 11.11 | Using where; **Using index**; Using temporary; Using filesort |
+| 1 | SIMPLE | l | eq_ref | PRIMARY, fk_listings_hostId | PRIMARY | 8 | ls.listingId | 1 | 11.11 | Using where |
+
+![EXPLAIN](./첨부파일/EXPLAIN.png)
+
+> `ls` 테이블에 `Using index`가 표시되어 커버링 인덱스가 정상 작동하고 있음을 확인할 수 있습니다. `l` 테이블은 `eq_ref`(PK 단건 조회)로 JOIN되어 최소 비용으로 처리됩니다.
+
+#### TREE FORMAT 실행 계획
+
+```sql
+-> Limit: 100 row(s)
+    -> Sort: totalPrice, l.id
+        -> Filter: (count(ls.`date`) = 3)
+            -> Table scan on <temporary>
+                -> Aggregate using temporary table
+                    -> Nested loop inner join  (cost=656 rows=24.9)
+                        -> Filter: ((ls.isAvailable = 1) and (ls.`date` between '2015-01-01' and '2015-01-03') and (ls.price between 50000 and 70000))  (cost=410 rows=224)
+                            -> Covering index range scan on ls using idx_covering_search over (isAvailable = 1 AND '2015-01-01' <= date <= '2015-01-03' AND 50000.00 <= price <= 70000.00)  (cost=410 rows=2017)
+                        -> Filter: ((l.guestCapacity >= 1) and (l.infantCapacity >= 1))  (cost=1 rows=0.111)
+                            -> Single-row index lookup on l using PRIMARY (id=ls.listingId)  (cost=1 rows=1)
+```
+
+![EXPLAIN_TREE](./첨부파일/EXPLAIN_TREE.png)
+
+> TREE FORMAT을 통해 `Covering index range scan on ls using idx_covering_search`가 실제로 수행되고 있음을 명시적으로 확인할 수 있습니다.
+
+### 벤치마크 결과 (후보군 C0~C7)
+
+> 8가지 인덱스 후보군(C0~C7)의 Query/Insert 성능과 스캔 행 수를 직접 실험으로 비교한 결과표입니다. Insert 속도는 전 후보군에 걸쳐 거의 동일한 반면, `listingId`를 추가해 커버링 인덱스로 만든 C7에서 Query와 Rows Scanned 모두 최솟값을 달성했습니다.
+
+| 후보군 | 인덱스 구성 컬럼 | Query (ms) | Insert 1000 rows (ms) | Rows (Scan) | 비고 (실행 계획) |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| C0 | (None / Baseline) | 2,485.0 | 10.08 | 4,020,000 | 풀 스캔 |
+| C1 | `(date)` | 14.5 | 10.15 | 3,000 | 단일 범위 필터링 |
+| C2 | `(price)` | 2,485.0 | 10.12 | 4,020,000 | Optimizer가 인덱스 무시 |
+| C3 | `(date, price)` | 7.72 | 10.14 | 2,249 | `isAvailable` 누락 시 |
+| C4 | `(isAvailable, date, price)` | 7.89 | 10.27 | 2,017 | 등치 조건 선두 배치 |
+| C5 | `(date, isAvailable, price)` | 11.2 | 10.30 | 2,224 | 범위 조건 선두 배치 |
+| C6 | `(date, price, isAvailable)` | 9.43 | 10.07 | 2,249 | 범위 조건 선두 배치 |
+| C7 | `(isAvail, date, price, listingId)` | 5.91 | 10.61 | 2,017 | Covering Index (최종 선택) |
