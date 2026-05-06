@@ -41,7 +41,7 @@ export default function PriceInput({ priceGroup, setPriceGroup }: {
         <>
             <div onClick={() => setShowModal(true)} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer'}}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                    <div>요금</div>
+                    <div>1박당 요금</div>
                     {getDisplayText()}
                 </div>
                 {(priceGroup.minPrice !== 0 || priceGroup.maxPrice !== 0) && <button onClick={handleResetClick} style={{ marginLeft: '1.5rem' }}>X</button>}
