@@ -13,12 +13,12 @@ cd project
 # 1. 백엔드 서버 구동(배포용과 개발용 택 1)
 # 주의사항 : 300만개 이상의 seed 데이터를 삽입해서 1분정도 소요됩니다.
 ## 배포용
-docker-compose up prod_backend --build
-docker-compose down # 컨테이너 모두 내리기.
+docker compose up prod_backend --build
+docker compose down # 컨테이너 모두 내리기.
 
 ## 개발용
-docker-compose up dev_backend --build
-docker-compose down # 컨테이너 모두 내리기.
+docker compose up dev_backend --build
+docker compose down # 컨테이너 모두 내리기.
 
 # 2. 프론트 서버 기동.
 cd frontend
@@ -29,13 +29,14 @@ npm run build # 배포용
 
 # 3. DB 만 따로 켜볼수도 있다.
 # 어디에 연결하느냐만 다르지 내용은 동일.
-docker-compose up prod_db --build
-docker-compose up dev_db --build
+cd .. # project로 이동
+docker compose up prod_db --build
+docker compose up dev_db --build
 
 # 4. 테스트 코드 실행해보기.
-# 실제 db를 켜보고 테스트 코드를 돌리기위한 컨테이너.
-# backend 이름을 통일하기 위해서 붙여줌.
-docker-compose up test_backend --build 
+cd backend
+npm install
+npm run test:e2e
 ```
 
 # 🤗 보여지는 결과물.
